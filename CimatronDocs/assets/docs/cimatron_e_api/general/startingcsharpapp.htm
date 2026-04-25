@@ -1,0 +1,272 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+
+  <meta name="gRootRelPath" content="../../../.."/>
+	<meta name="gCommonRootRelPath" content="../../../.."/>
+  <meta name="gTopicId" content="1"/>
+  <script type="text/javascript" src="../../../../template/scripts/rh.min.js"></script>
+  <script type="text/javascript" src="../../../../template/scripts/common.min.js"></script>
+  <script type="text/javascript" src="../../../../template/scripts/topic.min.js"></script>
+  <script type="text/javascript" src="../../../../template/scripts/topicwidgets.min.js"></script>
+<script type="text/javascript" src="../../../../whxdata/projectsettings.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../../template/styles/topic.min.css"/>
+  <link rel="stylesheet" type="text/css" href="../../../../template/cimatron/topicheader.css"/>
+  <meta name="topic-status" content="Draft"/>
+<link rel="stylesheet" type="text/css" href="../../../css/cimatrone_help.css"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="generator" content="Adobe RoboHelp 2022"/>
+  <title>StartingC#App</title>
+  
+  <meta name="rh-index-keywords" content="API:StartingC#App,StartingC#App"/>
+</head>
+
+<body>
+  <div class="topic-header rh-hide" id="rh-topic-header">
+    <div class="logo">
+    </div>
+    <div class="nav">
+      <div class="title" title="API Documentation">
+        <span>API Documentation</span>
+      </div>
+      <div class="gotohome" title="Click here to see this page in full context">
+        <a href="#" onclick="rh._.goToFullLayout()">Click here to see this page in full context</a>
+      </div>
+    </div>
+  </div>
+  <div class="topic-header-shadow rh-hide" id="rh-topic-header-shadow"></div>
+
+
+
+  <div>Â </div>
+  <div>
+  <h1><span style="background-color: Transparent;">Starting a C# Application with the <span data-keyref="Product_Name"><span>Cimatron</span></span>API</span></h1>
+  <p>As the <span data-keyref="Product_Name"><span>Cimatron</span></span> API uses the COM based approach, to start working with it in a C# application, you need to add references to all type libraries you going to use.</p>
+  <p>The API uses the hierarchical object model. <span>Files are related in a parent-child manner, with each parent capable of relating to more than one child, but each child only being related to one parent. The top-level directory is the root, and</span>Â child objects are derived from the parent object above them in the hierarchy.</p>
+  <p style="margin-left: 0px;">These kinds of objects are theÂ <a href="../topic_documents/object_containers/application_sub.htm" style="background-color: Transparent;">Application</a> objects of the <span data-keyref="Product_Name"><span>Cimatron</span></span>Â API.</p>
+  <p style="margin-left: 0px;">To getÂ anÂ <a href="../topic_documents/object_containers/application_sub.htm" style="background-color: Transparent;">Application</a> objectÂ of a running active <span data-keyref="Product_Name"><span>Cimatron</span></span>Â application, use the <a href="../topic_documents/object_containers/appaccess.htm" style="background-color: Transparent;">AppAccess</a> object. Its interface (<a href="../elite_api_interfaces/iappaccess/iappaccess.htm" style="background-color: Transparent;">IAppAccess</a>) allows you to connect to a running active application by returning a pointer to the <a href="../elite_api_interfaces/iapplication/iapplication.htm" style="background-color: Transparent;">IApplication</a> interface of the <a href="../topic_documents/object_containers/application_sub.htm" style="background-color: Transparent;">Application</a> object.</p>
+  <p style="margin-left: 0px;">If there is no running application or you want to start a new one, you have to create an instance of the <a href="../topic_documents/object_containers/application_sub.htm" style="background-color: Transparent;">Application</a> object and receive a pointer to the <a href="../elite_api_interfaces/iapplication/iapplication.htm" style="background-color: Transparent;">IApplication</a> interface.</p>
+  <p style="margin-left: 0px;">When you have a pointer to the <a href="../elite_api_interfaces/iapplication/iapplication.htm">IApplication</a> interface, you can start to execute a task of your user application.</p>
+  <p style="margin-left: 0px;">There is no special requirement for the type of project you can create in Visual C#.</p>
+  <p class="procedure-start">Using the API in a C# application</p>
+  <p class="NumList" style="margin-bottom: 2pt;">Create references to the API Interop by opening <strong><span style="mso-fareast-font-family: &#39;Times New Roman&#39;; 
+													 mso-fareast-theme-font: major-fareast;">Project</span>Â &gt; <span style="mso-fareast-font-family: &#39;Times New Roman&#39;; mso-fareast-theme-font: major-fareast;">References</span></strong> and selecting all you are going to use. Attach all <span data-keyref="Product_Name"><span>Cimatron</span></span> API interop files:</p>
+  <ul style="list-style: disc;margin-left: 52px">
+    <li>
+      <p class="NumList_Indent" style="margin-top: 2pt;margin-bottom: 2pt;margin-left: 0px">interop.CimAppAccess.dll</p>
+    </li>
+    <li>
+      <p class="NumList_Indent" style="margin-top: 2pt;margin-bottom: 2pt;margin-left: 0px">interop.CimatronE.dll</p>
+    </li>
+    <li>
+      <p class="NumList_Indent" style="margin-top: 2pt;margin-bottom: 2pt;margin-left: 0px">interop.CimBaseAPI.dll</p>
+    </li>
+    <li>
+      <p class="NumList_Indent" style="margin-top: 2pt;margin-bottom: 2pt;margin-left: 0px">interop.CimMdlrAPI.dll</p>
+    </li>
+    <li>
+      <p class="NumList_Indent" style="margin-top: 2pt;margin-bottom: 2pt;margin-left: 0px">interop.CIMMiscAPI.dll</p>
+    </li>
+    <li>
+      <p class="NumList_Indent" style="margin-top: 2pt;margin-bottom: 2pt;margin-left: 0px">interop.CimNcAPI.dll</p>
+    </li>
+    <li>
+      <p class="NumList_Indent" style="margin-top: 2pt;margin-bottom: 2pt;margin-left: 0px">interop.CimServicesAPI.dll</p>
+    </li>
+    <li>
+      <p class="NumList_Indent" style="margin-top: 2pt;margin-bottom: 2pt;margin-left: 0px">interop.CimElectrodeAPI.dll</p>
+    </li>
+  </ul>
+  <p class="NumList" style="margin-bottom: 2pt;">After referencing the Interopâs you have definitions of all API interfaces. The next step is to get an <a href="../elite_api_interfaces/iapplication/iapplication.htm">IApplication</a> interface.</p>
+  <p style="margin-left: 80px; background-color: Transparent; margin-bottom: 2pt; 
+	 text-decoration: underline; ">For EXE Project:</p>
+  <p class="MsoNormal" style="margin-top: 2.0pt; margin-right: 0cm; margin-bottom: 2.0pt; 
+	 mso-layout-grid-align: none; margin-left: 128px;"><span style="font-size: 9.5pt; 
+															 line-height: 107%; 
+															 font-family: Consolas; 
+															 mso-fareast-font-family: &#39;Times New Roman&#39;; 
+															 color: #008000; 
+															 mso-bidi-language: HE;">// Define an AppAccess object to get the running active application</span></p>
+  <p class="MsoNormal" style="margin-top: 2.0pt; margin-right: 0cm; margin-bottom: 2.0pt; 
+	 mso-layout-grid-align: none; margin-left: 128px;"><span style="font-size: 9.5pt; 
+															 line-height: 107%; 
+															 font-family: Consolas; 
+															 mso-fareast-font-family: &#39;Times New Roman&#39;; 
+															 color: #000000; 
+															 mso-bidi-language: HE;">interop.CimAppAccess.</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #2B91AF; mso-bidi-language: HE;">AppAccess</span> <span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+		 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #000000; mso-bidi-language: HE;">AppAcc =</span> <span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+				 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #0000ff; 
+				 mso-bidi-language: HE;">new</span> <span style="font-size: 9.5pt; 
+															 line-height: 107%; 
+															 font-family: Consolas; 
+															 mso-fareast-font-family: &#39;Times New Roman&#39;; 
+															 color: #000000; 
+															 mso-bidi-language: HE;">interop.CimAppAccess.</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #2B91AF; mso-bidi-language: HE;">AppAccess</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #000000; mso-bidi-language: HE;">();</span></p>
+  <p class="MsoNormal" style="margin-top: 2.0pt; margin-right: 0cm; margin-bottom: 2.0pt; 
+	 mso-layout-grid-align: none; margin-left: 128px;"><span style="mso-bookmark: OLE_LINK4;"><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #008000; mso-bidi-language: HE;">// Define an Application object and getting running active application</span></span></p>
+  <p class="MsoNormal" style="margin-top: 2.0pt; margin-right: 0cm; margin-bottom: 2.0pt; 
+	 mso-layout-grid-align: none; margin-left: 128px;"><span style="font-size: 9.5pt; 
+															 line-height: 107%; 
+															 font-family: Consolas; 
+															 mso-fareast-font-family: &#39;Times New Roman&#39;; 
+															 color: #000000; 
+															 mso-bidi-language: HE;">interop.CimatronE.</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #2B91AF; mso-bidi-language: HE;">IApplication</span> <span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+		 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #000000; mso-bidi-language: HE;">CimApp = (interop.CimatronE.</span><span style="font-size: 9.5pt; line-height: 107%; 
+									 font-family: Consolas; mso-fareast-font-family: &#39;Times New Roman&#39;; 
+									 color: #2B91AF; mso-bidi-language: HE;">IApplication</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #000000; mso-bidi-language: HE;">)AppAcc.GetApplication();</span></p>
+  <p class="MsoNormal" style="margin-top: 2.0pt; margin-right: 0cm; margin-bottom: 2.0pt; 
+	 mso-layout-grid-align: none; margin-left: 128px;"><span style="mso-bookmark: OLE_LINK6;"><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #008000; mso-bidi-language: HE;">// Check there is no running Cimatron Application</span></span></p>
+  <p class="MsoNormal" style="margin-top: 2.0pt; margin-right: 0cm; margin-bottom: 2.0pt; 
+	 mso-layout-grid-align: none; margin-left: 128px;"><span style="font-size: 9.5pt; 
+															 line-height: 107%; 
+															 font-family: Consolas; 
+															 mso-fareast-font-family: &#39;Times New Roman&#39;; 
+															 color: #0000ff; 
+															 mso-bidi-language: HE;">if</span> <span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+		 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #000000; mso-bidi-language: HE;">(CimApp ==</span> <span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+				 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #0000ff; 
+				 mso-bidi-language: HE;">null</span><span style="font-size: 9.5pt; 
+															 line-height: 107%; 
+															 font-family: Consolas; 
+															 mso-fareast-font-family: &#39;Times New Roman&#39;; 
+															 color: #000000; 
+															 mso-bidi-language: HE;">)</span></p>
+  <p class="MsoNormal" style="margin-top: 2.0pt; margin-right: 0cm; margin-bottom: 2.0pt; 
+	 mso-layout-grid-align: none; margin-left: 128px;"><span style="font-size: 9.5pt; 
+															 line-height: 107%; 
+															 font-family: Consolas; 
+															 mso-fareast-font-family: &#39;Times New Roman&#39;; 
+															 color: #000000; 
+															 mso-bidi-language: HE;">{</span></p>
+  <p class="MsoNormal" style="margin-top: 2.0pt; margin-right: 0cm; margin-bottom: 2.0pt; 
+	 mso-layout-grid-align: none; margin-left: 128px;"><span style="font-size: 9.5pt; 
+															 line-height: 107%; 
+															 font-family: Consolas; 
+															 mso-fareast-font-family: &#39;Times New Roman&#39;; 
+															 color: #000000; 
+															 background: #ffffff; 
+															 mso-highlight: white; 
+															 mso-bidi-language: HE;">Â Â Â </span><span style="font-size: 12.0pt; line-height: 107%; font-family: &#39;Times New Roman&#39;, serif; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; mso-bidi-language: HE;">Â </span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #008000; mso-bidi-language: HE;">// Creating a new instance of a Cimatron application.</span></p>
+  <p class="MsoNormal" style="margin-top: 2.0pt; margin-right: 0cm; margin-bottom: 2.0pt; 
+	 mso-layout-grid-align: none; margin-left: 128px;"><span style="font-size: 9.5pt; 
+															 line-height: 107%; 
+															 font-family: Consolas; 
+															 mso-fareast-font-family: &#39;Times New Roman&#39;; 
+															 color: #000000; 
+															 background: #ffffff; 
+															 mso-highlight: white; 
+															 mso-bidi-language: HE;">Â Â Â </span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #000000; mso-bidi-language: HE;">Â interop.CimAppAccess.</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #2B91AF; mso-bidi-language: HE;">CimUtilityApp</span> <span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+		 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #000000; mso-bidi-language: HE;">cimUtilApp =</span> <span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+				 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #0000ff; 
+				 mso-bidi-language: HE;">new</span> <span style="font-size: 9.5pt; 
+															 line-height: 107%; 
+															 font-family: Consolas; 
+															 mso-fareast-font-family: &#39;Times New Roman&#39;; 
+															 color: #000000; 
+															 mso-bidi-language: HE;">interop.CimAppAccess.</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #2B91AF; mso-bidi-language: HE;">CimUtilityApp</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #000000; mso-bidi-language: HE;">();</span></p>
+  <p class="MsoNormal" style="margin-top: 2.0pt; margin-right: 0cm; margin-bottom: 2.0pt; 
+	 mso-layout-grid-align: none; margin-left: 128px;"><span style="font-size: 9.5pt; 
+															 line-height: 107%; 
+															 font-family: Consolas; 
+															 mso-fareast-font-family: &#39;Times New Roman&#39;; 
+															 color: #000000; 
+															 background: #ffffff; 
+															 mso-highlight: white; 
+															 mso-bidi-language: HE;">Â Â Â </span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #000000; mso-bidi-language: HE;">Â CimApp = (interop.CimatronE.</span><span style="font-size: 9.5pt; line-height: 107%; 
+									 font-family: Consolas; mso-fareast-font-family: &#39;Times New Roman&#39;; 
+									 color: #2B91AF; mso-bidi-language: HE;">IApplication</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #000000; mso-bidi-language: HE;">)cimUtilApp.GetIApplication();</span></p>
+  <p class="MsoNormal" style="margin-top: 2.0pt; mso-margin-bottom-alt: auto; 
+	 mso-layout-grid-align: none; margin-left: 128px;"><span style="font-size: 9.5pt; 
+															 line-height: 107%; 
+															 font-family: Consolas; 
+															 mso-fareast-font-family: &#39;Times New Roman&#39;; 
+															 color: #000000; 
+															 mso-bidi-language: HE;">}</span></p>
+  <p class="MsoNormal" style="margin-left: 80px; background-color: Transparent; 
+	 margin-bottom: 2pt; text-decoration: underline; ">For Class Project:</p>
+  <p class="MsoNormal" style="mso-layout-grid-align: none; text-autospace: none; 
+	 margin-top: 2pt; margin-bottom: 2pt; margin-left: 128px;"><span style="font-size: 9.5pt; 
+	 line-height: 107%; font-family: Consolas; color: #008000; background: #ffffff; 
+	 mso-highlight: white; mso-bidi-language: HE;">// Define an Cimatron Provider object to get the current application</span></p>
+  <p class="MsoNormal" style="mso-layout-grid-align: none; text-autospace: none; 
+	 margin-top: 2pt; margin-bottom: 2pt; margin-left: 128px;"><span style="font-size: 9.5pt; 
+	 line-height: 107%; font-family: Consolas; color: #000000; background: #ffffff; 
+	 mso-highlight: white; mso-bidi-language: HE;">interop.CimServicesAPI.</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 color: #2B91AF; background: #ffffff; mso-highlight: white; mso-bidi-language: HE;">CimApplicationProvider</span> <span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+		 color: #000000; background: #ffffff; mso-highlight: white; mso-bidi-language: HE;">AppProvider =</span> <span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+				 color: #0000ff; background: #ffffff; mso-highlight: white; 
+				 mso-bidi-language: HE;">new</span><span style="font-size: 9.5pt; 
+														 line-height: 107%; 
+														 font-family: Consolas; 
+														 color: #000000; 
+														 background: #ffffff; 
+														 mso-highlight: white; 
+														 mso-bidi-language: HE;"><span style="mso-spacerun: yes;">Â Â Â Â </span>Â interop.CimServicesAPI.</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 color: #2B91AF; background: #ffffff; mso-highlight: white; mso-bidi-language: HE;">CimApplicationProvider</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 color: #000000; background: #ffffff; mso-highlight: white; mso-bidi-language: HE;">();</span></p>
+  <p class="MsoNormal" style="mso-layout-grid-align: none; text-autospace: none; 
+	 margin-top: 2pt; margin-bottom: 2pt; margin-left: 128px;"><span style="font-size: 9.5pt; 
+	 line-height: 107%; font-family: Consolas; color: #008000; background: #ffffff; 
+	 mso-highlight: white; mso-bidi-language: HE;">// Define an Application object and get the application object from the Cimatron Provider object</span></p>
+  <p class="MsoNormal" style="mso-layout-grid-align: none; text-autospace: none; 
+	 margin-top: 2pt; margin-bottom: 2pt; margin-left: 128px;"><span style="font-size: 9.5pt; 
+	 line-height: 107%; font-family: Consolas; color: #000000; background: #ffffff; 
+	 mso-highlight: white; mso-bidi-language: HE;">interop.CimatronE.</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 color: #2B91AF; background: #ffffff; mso-highlight: white; mso-bidi-language: HE;">IApplication</span> <span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+		 color: #000000; background: #ffffff; mso-highlight: white; mso-bidi-language: HE;">CimApp = AppProvider.GetApplication();</span></p>
+  <p class="MsoNormal" style="mso-layout-grid-align: none; text-autospace: none; 
+	 margin-top: 2pt; margin-bottom: 2pt; margin-left: 128px;"><span style="font-size: 9.5pt; 
+	 line-height: 107%; font-family: Consolas; color: #008000; background: #ffffff; 
+	 mso-highlight: white; mso-bidi-language: HE;">// Check validation of Cimatron Application</span></p>
+  <p class="MsoNormal" style="mso-layout-grid-align: none; text-autospace: none; 
+	 margin-top: 2pt; margin-bottom: 2pt; margin-left: 128px;"><span style="font-size: 9.5pt; 
+	 line-height: 107%; font-family: Consolas; color: #0000ff; background: #ffffff; 
+	 mso-highlight: white; mso-bidi-language: HE;">if</span> <span style="font-size: 9.5pt; 
+	 line-height: 107%; font-family: Consolas; color: #000000; background: #ffffff; 
+	 mso-highlight: white; mso-bidi-language: HE;">(CimApp ==</span> <span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 color: #0000ff; background: #ffffff; mso-highlight: white; mso-bidi-language: HE;">null</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 color: #000000; background: #ffffff; mso-highlight: white; mso-bidi-language: HE;">)</span></p>
+  <p class="MsoNormal" style="mso-layout-grid-align: none; text-autospace: none; 
+	 margin-top: 2pt; margin-bottom: 2pt; margin-left: 128px;"><span style="font-size: 9.5pt; 
+	 line-height: 107%; font-family: Consolas; color: #000000; background: #ffffff; 
+	 mso-highlight: white; mso-bidi-language: HE;">{</span></p>
+  <p class="MsoNormal" style="mso-layout-grid-align: none; text-autospace: none; 
+	 margin-top: 2pt; margin-bottom: 2pt; margin-left: 128px;"><span style="font-size: 9.5pt; 
+	 line-height: 107%; font-family: Consolas; color: #000000; background: #ffffff; 
+	 mso-highlight: white; mso-bidi-language: HE;"><span style="mso-spacerun: yes;">Â Â Â </span></span>Â <span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 color: #2B91AF; background: #ffffff; mso-highlight: white; mso-bidi-language: HE;">MessageBox</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 color: #000000; background: #ffffff; mso-highlight: white; mso-bidi-language: HE;">.Show(</span><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 color: #A31515; background: #ffffff; mso-highlight: white; mso-bidi-language: HE;">&quot;Cimatron application was not found&quot;</span><span style="font-size: 9.5pt; line-height: 107%; 
+											 font-family: Consolas; color: #000000; 
+											 background: #ffffff; mso-highlight: white; 
+											 mso-bidi-language: HE;">);</span></p>
+  <p class="MsoNormal" style="margin-top: 2.0pt; mso-margin-bottom-alt: auto; 
+	 mso-layout-grid-align: none; margin-left: 128px;"><span style="mso-margin-bottom-alt: auto; 
+															 mso-layout-grid-align: none;"><span style="font-size: 9.5pt; line-height: 107%; font-family: Consolas; 
+	 mso-fareast-font-family: &#39;Times New Roman&#39;; color: #000000; mso-bidi-language: HE;">}</span></span></p>
+  <p class="NumList">Now you are ready to use the <span data-keyref="Product_Name"><span>Cimatron</span></span> API.</p>
+  
+
+</div>
+  <div>
+    <figure style="text-align:end;"><img src="../../../images/logo_cimatron_logo_tm_3d_systems_small.png"/></figure>
+    
+  </div>
+
+</body></html>

@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+
+  <meta name="gRootRelPath" content="../../.."/>
+	<meta name="gCommonRootRelPath" content="../../.."/>
+  <meta name="gTopicId" content="1.4.2.0_2"/>
+  <script type="text/javascript" src="../../../template/scripts/rh.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/common.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/topic.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/topicwidgets.min.js"></script>
+<script type="text/javascript" src="../../../whxdata/projectsettings.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../template/styles/topic.min.css"/>
+  <link rel="stylesheet" type="text/css" href="../../../template/cimatron/topicheader.css"/>
+  <meta name="topic-status" content="Draft"/>
+<link rel="stylesheet" type="text/css" href="../../css/cimatrone_help.css"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="generator" content="Adobe RoboHelp 2022"/>
+  <title>Add an External Pane Using C# (.NET Framework)</title>
+  <meta name="topic-status" content="Draft"/>
+  
+  
+</head>
+
+<body>
+  <div class="topic-header rh-hide" id="rh-topic-header">
+    <div class="logo">
+    </div>
+    <div class="nav">
+      <div class="title" title="API Documentation">
+        <span>API Documentation</span>
+      </div>
+      <div class="gotohome" title="Click here to see this page in full context">
+        <a href="#" onclick="rh._.goToFullLayout()">Click here to see this page in full context</a>
+      </div>
+    </div>
+  </div>
+  <div class="topic-header-shadow rh-hide" id="rh-topic-header-shadow"></div>
+
+
+
+  <div>Â </div>
+  <div>
+  <h1>Add an External Pane Using C# (.NET Framework)</h1>
+  <p>This document is a guide for adding an external pane inÂ <span data-keyref="Product_Name"><span>Cimatron</span></span> using the API. Perform the following steps to create an API application. The steps and images are based on Visual Studio 2022.</p>
+  <ol>
+    <li>
+      <p>Create a C# Class Library Project</p>
+      <p>In Visual Studio, create a new C# project with the project type Class Library.</p>
+      <p><img src="../../images/addexternalpanecfstep1.png"/></p>
+    </li>
+    <li>
+      <p>Edit Project Properties</p>
+      <ol class="LowerAlpha">
+        <li>
+          <p>Output path - Ensure the output path of this project is set to the <span data-keyref="Product_Name"><span>Cimatron</span></span> installation folder.</p>
+        </li>
+        <li>
+          <p>Edit <strong>Properties</strong> &gt; <strong>AssemblyInfo.cs</strong> file to setÂ <em>ComVisible</em> <em>true</em>.</p>
+          <p><img src="../../images/addexternalpanecfstep2.png"/></p>
+        </li>
+        <li>
+          <p>Mark the checkboxÂ <strong>Register for COM interop</strong>.</p>
+          <p><img src="../../images/addexternalpanecfstep3.png"/></p>
+        </li>
+      </ol>
+    </li>
+    <li>
+      <p>Add References to the Project.<br/>
+        Go to <strong>References</strong> &gt; <strong>Add Reference</strong> and add <em>interop.CimserviceAPI.dll</em>.</p>
+    </li>
+    <li>
+      <p>Add a User Control form to the project. This form will be visible as a pane in <span data-keyref="Product_Name"><span>Cimatron</span></span>.<br/>
+        <img src="../../images/addexternalpanecfstep4.png"/>
+      </p>
+    </li>
+    <li>
+      <p>Â </p>
+    </li>
+    <li>
+      <p>Create an External Pane Class</p>
+      <ol class="LowerAlpha">
+        <li>
+          <p>Add a new class file and insert the following code, updating the GUIDs as necessary.</p>
+          <p class="codesample"><span>public class ExternalPaneClass: interop.CimServicesAPI.IExternalPane<br/>
+              {<br/>
+              public string GetControl()<br/>
+              {<br/>
+              return &quot;PaneTesting.Pane&quot;;<br/>
+              }<br/>
+              public string GetPaneName()<br/>
+              {<br/>
+              return &quot;TopBottom&quot;;<br/>
+              }<br/>
+              public InitialPanePosition GetInitialPanePosition()<br/>
+              {<br/>
+              return InitialPanePosition.cmBottomPane;<br/>
+              }<br/>
+              public int GetInitialWidth()<br/>
+              {<br/>
+              return 1000;<br/>
+              }<br/>
+              public int GetInitialHeight()<br/>
+              {<br/>
+              return 250;<br/>
+              }<br/>
+              public ApplicationMode GetApplicationMode()<br/>
+              {<br/>
+              return ApplicationMode.Part;<br/>
+              }<br/>
+              }</span></p>
+        </li>
+      </ol>
+    </li>
+    <li>
+      <p>Build the project in administration mode.</p>
+    </li>
+    <li>
+      <p>Configure ExternalCommands.ini</p>
+      <ol class="LowerAlpha">
+        <li>
+          <p>Open the <b>ExternalCommands.ini</b> file in a text editor from the <b>ProgramData</b> folder.Â </p>
+        </li>
+        <li>
+          <p>Under the [External Pane] add the following entry using the syntaxÂ &quot;Namespace.ClassName=Namespace.ClassName@1&quot;</p>
+          <p>Example:</p>
+          <p class="codesample">CimatronAPIExternalPane.ExternalPaneClass=CimatronAPIExternalPane.ExternalPaneClass@1Â </p>
+          <p class="Note_Head"><strong>Note:</strong> The class name and namespace mentioned here are from the class that is derived from interop.CimServicesAPI.IExternalPane.</p>
+        </li>
+      </ol>
+    </li>
+    <li>
+      <p>Use Reset All command</p>
+      <p>Use the <b>Reset All</b> command from theÂ <span data-keyref="Product_Name"><span>Cimatron</span></span> Control Panel to load your changes.</p>
+      <p><img src="../../images/addexternalpanestep8.png"/></p>
+    </li>
+  </ol>
+
+</div>
+  <div>
+    <figure style="text-align:end;"><img src="../../images/logo_cimatron_logo_tm_3d_systems_small.png"/></figure>
+    
+  </div>
+
+</body></html>

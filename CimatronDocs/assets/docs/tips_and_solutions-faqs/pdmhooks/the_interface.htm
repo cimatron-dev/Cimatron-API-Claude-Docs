@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+
+  <meta name="gRootRelPath" content="../../../.."/>
+	<meta name="gCommonRootRelPath" content="../../../.."/>
+  <meta name="gTopicId" content="1.3.1.2.3.1.1.0_3"/>
+  <script type="text/javascript" src="../../../../template/scripts/rh.min.js"></script>
+  <script type="text/javascript" src="../../../../template/scripts/common.min.js"></script>
+  <script type="text/javascript" src="../../../../template/scripts/topic.min.js"></script>
+  <script type="text/javascript" src="../../../../template/scripts/topicwidgets.min.js"></script>
+<script type="text/javascript" src="../../../../whxdata/projectsettings.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../../template/styles/topic.min.css"/>
+  <link rel="stylesheet" type="text/css" href="../../../../template/cimatron/topicheader.css"/>
+  <meta name="topic-status" content="Draft"/>
+<link rel="stylesheet" type="text/css" href="../../../css/cimatrone_help.css" data-rhtags="7"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" data-rhtags="7"/>
+  <meta name="generator" content="Adobe RoboHelp 2022" data-rhtags="7"/>
+  <title data-rhtags="7">The Interface</title>
+  <meta name="topic-status" content="Draft" data-rhtags="7"/>
+
+  <meta name="condition-tags" content="Namespace:interop.CimatronE;Namespace:interop.CimBaseAPI" data-rhtags="7"/>
+
+  
+  
+</head>
+
+<body>
+  <div class="topic-header rh-hide" id="rh-topic-header">
+    <div class="logo">
+    </div>
+    <div class="nav">
+      <div class="title" title="API Documentation">
+        <span>API Documentation</span>
+      </div>
+      <div class="gotohome" title="Click here to see this page in full context">
+        <a href="#" onclick="rh._.goToFullLayout()">Click here to see this page in full context</a>
+      </div>
+    </div>
+  </div>
+  <div class="topic-header-shadow rh-hide" id="rh-topic-header-shadow"></div>
+
+
+
+  <div data-rhtags="7">Â </div>
+  <div data-rhtags="7">
+  <h1>The Interface</h1>
+  <p>Two methods are added to the interface before and after processing each event.</p>
+  <table class="borderonly">
+    <colgroup>
+      <col/>
+      <col/>
+    </colgroup>
+    <tbody>
+      <tr>
+        <td>
+          <p><strong>Before</strong></p>
+        </td>
+        <td>
+          <p>These events are invoked when the event is about to be triggered. This makes it possible to substitute user-defined processing for default processing of the event or cancel the processing. The method returns the user&#39;s choice, which can be one of the following:</p>
+          <div data-conref="../../../snippets/ReturnedUserChoice.hts">
+  <ul>
+    <li>
+      <p>Process (0)âThe user processes the event</p>
+    </li>
+    <li>
+      <p>Continue (1)âThe user passes the control to <span data-keyref="Product_Name"><span>Cimatron</span></span>; the default processing of the event will be performed</p>
+    </li>
+    <li>
+      <p>Cancel (2)âThe user cancels the event&#39;s processing</p>
+    </li>
+  </ul>
+
+</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p><strong>After</strong></p>
+        </td>
+        <td>
+          <p>These events are invoked after the event has been processed. This method passes the user the result of the event&#39;s processing, which can be one of the following:<strong></strong></p>
+          <div data-conref="../../../snippets/ReturnedEventProcessing.hts">
+  <ul>
+    <li>
+      <p>ProcessedâThe event was processed</p>
+    </li>
+    <li>
+      <p>SucceededâThe event was processed successfully</p>
+    </li>
+    <li>
+      <p>FailedâThe event was processed and has resulted in failure</p>
+    </li>
+    <li>
+      <p>CancelledâThe event&#39;s processing was cancelled</p>
+    </li>
+  </ul>
+
+</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+  <div data-rhtags="7">
+    <figure style="text-align:end;" data-rhtags="7"><img src="../../../images/logo_cimatron_logo_tm_3d_systems_small.png"/></figure>
+    
+  </div>
+
+</body></html>

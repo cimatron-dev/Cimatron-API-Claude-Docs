@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+
+  <meta name="gRootRelPath" content="../../../.."/>
+	<meta name="gCommonRootRelPath" content="../../../.."/>
+  <meta name="gTopicId" content="1"/>
+  <script type="text/javascript" src="../../../../template/scripts/rh.min.js"></script>
+  <script type="text/javascript" src="../../../../template/scripts/common.min.js"></script>
+  <script type="text/javascript" src="../../../../template/scripts/topic.min.js"></script>
+  <script type="text/javascript" src="../../../../template/scripts/topicwidgets.min.js"></script>
+<script type="text/javascript" src="../../../../whxdata/projectsettings.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../../template/styles/topic.min.css"/>
+  <link rel="stylesheet" type="text/css" href="../../../../template/cimatron/topicheader.css"/>
+  <meta name="topic-status" content="Draft"/>
+<link rel="stylesheet" type="text/css" href="../../../css/cimatrone_help.css"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="generator" content="Adobe RoboHelp 2022"/>
+  <title>Register API Commands Tool</title>
+  
+  <meta name="rh-index-keywords" content="API:Register API Commands Tool,Register API Commands Tool"/>
+</head>
+
+<body>
+  <div class="topic-header rh-hide" id="rh-topic-header">
+    <div class="logo">
+    </div>
+    <div class="nav">
+      <div class="title" title="API Documentation">
+        <span>API Documentation</span>
+      </div>
+      <div class="gotohome" title="Click here to see this page in full context">
+        <a href="#" onclick="rh._.goToFullLayout()">Click here to see this page in full context</a>
+      </div>
+    </div>
+  </div>
+  <div class="topic-header-shadow rh-hide" id="rh-topic-header-shadow"></div>
+
+
+
+  <div>Â </div>
+  <div>
+  <h1><span style="background-color: Transparent;">Register API Commands Tool</span></h1>
+  <p><a class="dropspot" data-rhwidget="DropSpot" data-target="POPUP431836890" href="#"><span data-open-text="true" data-skip-index="true"><span style="background-color: Transparent;"><img alt="" border="0" src="../../../assets/images/topic_access.png"/></span></span><span data-close-text="true"><span style="background-color: Transparent;"><img alt="" border="0" src="../../../assets/images/topic_access.png"/></span></span></a></p>
+  <div data-targetname="POPUP431836890">
+    <div data-conref="../../../assets/snippets/Access 2.hts"> </div>
+    <ul style="list-style: disc;">
+      <li>
+        <p class="yellowback" style="margin-top: 4pt; margin-bottom: 4pt;">The
+          <span data-keyref="Product_Name"><span>Cimatron</span></span>
+          installation Program folder:<br/>
+          <span style="font-size: 9.0pt; line-height: 107%;">&lt;<span data-keyref="Product_Name"><span>Cimatron</span></span>&gt;\Program\Register_API_Commands.exe</span>
+        </p>
+      </li>
+      <li>
+        <p class="yellowback" style="margin-top: 4pt; margin-bottom: 4pt;">Using
+          the command line, example:<br/>
+          <span style="font-size: 9.0pt; line-height: 107%;">&lt;<span data-keyref="Product_Name"><span>Cimatron</span></span>&gt;\Program\Register_API_Commands.exe
+            &quot;&lt; program folder&gt;\MyCommand.dll&quot; MyProjectName
+            MyClassName &quot;&lt;icon- path&gt;\myIcon.ico&quot;</span>
+        </p>
+      </li>
+    </ul>
+  </div>
+  <p>This tool helps to register an API command (.NET COM / Plugin / C++ COM command).</p>
+  <p>The tool can be <a class="expandspot" data-rhwidget="ExpandSpot" data-target="POPUP594513772" href="#" style="background-color: transparent;"><span data-open-text="true" data-skip-index="true">invoked</span><span data-close-text="true">invoked</span></a><span data-targetname="POPUP594513772" class="expandtext"><span data-keyref="Invoke"> (for more, click <span style="font-weight: bold;">Access</span> at the top of this Help topic)</span></span> by running it from <span style="background-color: transparent;">the</span> <span data-keyref="Product_Name"><span>Cimatron</span></span> installation <span style="font-weight: bold;">Program</span> folder or by using a <a href="#Command_Line_Options">command line</a>.</p>
+  <p>When invoked, the <strong>Register API Commands</strong> dialog is displayed:</p>
+  <p><span class="MsoIntenseReference"><img alt="" border="0" src="../../../assets/images/register_api_commands_1.png" style="border: none;"/></span></p>
+  <p style="margin-bottom: 4pt;">These fields are mandatory (highlighted in red):</p>
+  <p class="NumList" style="margin-top: 2pt; 
+											 margin-bottom: 2pt;"><span style="font-weight: bold;">Select API Command DLL</span> name.</p>
+  <p class="NumList" style="margin-top: 2pt; 
+											 margin-bottom: 2pt;"><span style="font-weight: bold;">Project Name</span> of the command.</p>
+  <p class="NumList" style="margin-top: 2pt; 
+											 margin-bottom: 2pt;"><span style="font-weight: bold;">Class Name</span> of the command.</p>
+  <p style="margin-bottom: 4pt;">This field is optional:</p>
+  <p class="NumList" style="margin-top: 2pt; margin-bottom: 2pt; counter-set: pnumlist1 0;"><span style="font-weight: bold;">ICON ID</span> file name.</p>
+  <p>The X at the end of the <span style="font-weight: bold;">Select ICON for the Command</span> field represents the icon that will be used if no icon is selected.</p>
+  <p>When you select the command DLL file, the following are displayed, as shown in the image below:</p>
+  <p class="NumList" style="margin-top: 2pt; margin-bottom: 2pt; counter-set: pnumlist1 0;">A list showing all the public classes that the project includes.</p>
+  <p class="NumList" style="margin-top: 2pt; 
+											 margin-bottom: 2pt;">The .NET framework version that it was built with.</p>
+  <p><img alt="" border="0" src="../../../assets/images/register_api_commands_2.png" style="border: none;"/></p>
+  <p>Selecting the Command class in the list will show the Project/Class name and also will calculate the ID of the ICON, as shown below.</p>
+  <p><img alt="" border="0" src="../../../assets/images/register_api_commands_3.png" style="border: none;"/></p>
+  <p>Pressing the Register API Command button will register the command automatically and will update all needed data files in <span data-keyref="Product_Name"><span>Cimatron</span></span>.</p>
+  <p>If no ICON was selected then the default icon will be shown.</p>
+  <p>If an ICON was selected then it will be copied to the relevant DATA folder with the calculated ID.</p>
+  
+  <h2><a name="Command_Line_Options" id="Command_Line_Options"></a>Command Line Options</h2>
+  <p style="background-color: Transparent;">The command should be deployed by running the command line from the installation set.</p>
+  <p style="margin-bottom: 4pt;">When <a class="expandspot" data-rhwidget="ExpandSpot" data-target="POPUP603216758" href="#" style="background-color: transparent;"><span data-open-text="true" data-skip-index="true">invoking</span><span data-close-text="true">invoking</span></a><span data-targetname="POPUP603216758" class="expandtext"><span data-keyref="Invoke"> (for more, click <span style="font-weight: bold;">Access</span> at the top of this Help topic)</span></span> from the command line, the tool receives the three mandatory parameters and the one optional parameter:</p>
+  <p class="NumList1" style="margin-bottom: 4pt; counter-set: pnumlist1 0;">DLL full path name.</p>
+  <p class="NumList1" data-list-level="3" style="margin-top: 2pt; margin-bottom: 2pt;">Project name.</p>
+  <p class="NumList1" data-list-level="3" style="margin-top: 2pt; margin-bottom: 2pt;">Class name.</p>
+  <p class="NumList1" data-list-level="3" style="margin-top: 2pt; margin-bottom: 2pt;">(Optional):<span style="background-color: transparent;"></span></p>
+  <p class="Bullets" data-list-level="3" style="margin-top: 2pt;margin-bottom: 2pt;margin-left: 52px"><span style="background-color: transparent;">ICON full path name (if no icon is entered, the command will get the default <span data-keyref="Product_Name"><span>Cimatron</span></span>icon).</span></p>
+  <p class="Bullets" data-list-level="3" style="margin-top: 2pt;margin-bottom: 2pt;margin-left: 52px">-U; this option uninstalls the command.</p>
+  <p>Example:</p>
+  <p style="font-size: 9.0pt; line-height: 107%;">&lt;<span data-keyref="Product_Name"><span>Cimatron</span></span>&gt;\Program\Register_API_Commands.exe &quot;&lt;<span data-keyref="Product_Name"><span>Cimatron</span></span> program folder&gt;\MyCommand.dll&quot; MyProjectName MyClassName &quot;&lt;icon- path&gt;\myIcon.ico&quot;</p>
+  
+  <script type="text/javascript" language="JavaScript1.2">
+    //<![CDATA[
+    if (typeof(TextPopupInit) != 'function') TextPopupInit = new Function();
+    TextPopupInit('a3', 'POPUP431836890');
+    TextPopupInit('a1', 'POPUP594513772');
+    TextPopupInit('a2', 'POPUP603216758');
+    //]]>
+  </script>
+
+</div>
+  <div>
+    <figure style="text-align:end;"><img src="../../../images/logo_cimatron_logo_tm_3d_systems_small.png"/></figure>
+    
+  </div>
+
+</body></html>

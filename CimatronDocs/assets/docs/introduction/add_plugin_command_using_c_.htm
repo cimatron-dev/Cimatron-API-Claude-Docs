@@ -1,0 +1,598 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+
+  <meta name="gRootRelPath" content="../../.."/>
+	<meta name="gCommonRootRelPath" content="../../.."/>
+  <meta name="gTopicId" content="1.1.1"/>
+  <script type="text/javascript" src="../../../template/scripts/rh.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/common.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/topic.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/topicwidgets.min.js"></script>
+<script type="text/javascript" src="../../../whxdata/projectsettings.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../template/styles/topic.min.css"/>
+  <link rel="stylesheet" type="text/css" href="../../../template/cimatron/topicheader.css"/>
+  <meta name="topic-status" content="Draft"/>
+<link rel="stylesheet" type="text/css" href="../../css/cimatrone_help.css"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="generator" content="Adobe RoboHelp 2022"/>
+  <title>Add a Plugin Command using C#</title>
+  <meta name="topic-status" content="Draft"/>
+  
+</head>
+
+<body>
+  <div class="topic-header rh-hide" id="rh-topic-header">
+    <div class="logo">
+    </div>
+    <div class="nav">
+      <div class="title" title="API Documentation">
+        <span>API Documentation</span>
+      </div>
+      <div class="gotohome" title="Click here to see this page in full context">
+        <a href="#" onclick="rh._.goToFullLayout()">Click here to see this page in full context</a>
+      </div>
+    </div>
+  </div>
+  <div class="topic-header-shadow rh-hide" id="rh-topic-header-shadow"></div>
+
+
+
+  <div>Â </div>
+  <div>
+  <h1>Add a Plugin Command using C#</h1>
+  <p>This section guides you through the steps needed to create a <span data-keyref="Product_Name"><span>Cimatron</span></span> API Application using C#. The examples here are based on Visual Studio 2019.</p>
+  <ol class="Decimal">
+    <li>
+      <p>Create C# Class library (.Net Framework) Project.Â </p>
+      <ol class="LowerAlpha">
+        <li>
+          <p>Create a new C# project of type Class Library (.Net Framework), a project for creating c# project library (.dll).</p>
+          <p><img src="../../images/picture2.png"/></p>
+        </li>
+      </ol>
+    </li>
+    <li>
+      <p>Edit Project PropertiesÂ </p>
+      <ol class="LowerAlpha">
+        <li>
+          <p>In theÂ <strong>Application</strong> tab, set <strong>Target Framework</strong> to <i>.NET Framework 4.8</i>.Â <br/>
+            <img src="../../images/picture1.png"/>
+          </p>
+          <div class="noteDiv">
+            <p class="NoteDiv_Head"><strong>Note: </strong>If .NET Framework 4.8 is not available in the dropdown, perform following steps:</p>
+            <ol>
+              <li>
+                <p>Select the Install other Framework option from Target Framework dropdown. It opens a link to Download .NET SDKs for Visual Studio in your default browser (or you can directly go to the link: .NET SDKs downloads for Visual Studio (microsoft.com) )</p>
+              </li>
+              <li>
+                <p>From <strong>.NET Framework</strong> section, click on the <strong>Developer Pack</strong> link for <strong>.NET Framework 4.8</strong>.</p>
+              </li>
+              <li>
+                <p>If your download doesn&#39;t start automatically, click on the link to download it manually.</p>
+              </li>
+              <li>
+                <p>When the download is complete, install the package.</p>
+              </li>
+              <li>
+                <p>Close and reopen Visual Studio. .NET Framework 4.8 will be available in the dropdown.</p>
+              </li>
+            </ol>
+          </div>
+        </li>
+        <li>
+          <p>In <strong>Build</strong> tab, set <strong>Platform</strong> to <em>x64</em> and <strong>Output path</strong> to &quot;<em>Cimatron Installation Directory/Cimatron/Program</em>&quot;.<br/>
+            <img src="../../images/picture1a.png"/>
+          </p>
+        </li>
+      </ol>
+    </li>
+    <li>
+      <p>Add References to the Project</p>
+      <p>Create references to the API Interop by opening menu Project -&gt; References and selecting all Interopâs you are going to use. Attach all Cimatron API Interop files. Reference .dll location &quot;<em>Cimatron Installation Directory/Cimatron/Program</em>&quot;.</p>
+      <ol class="LowerAlpha">
+        <li>
+          <p>References Required for Plugin Command</p>
+          <ul>
+            <li>
+              <p>CimUIInfrastructure.dll</p>
+            </li>
+            <li>
+              <p>interop.CimAppAccess.dll</p>
+            </li>
+            <li>
+              <p>interop.CimatronE.dll</p>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <p>Optional References depending on the requirement</p>
+          <ul>
+            <li>
+              <p>interop.CimBaseAPI.dll</p>
+            </li>
+            <li>
+              <p>interop.CimMdlrAPI.dll</p>
+            </li>
+            <li>
+              <p>interop.CIMMiscAPI.dll</p>
+            </li>
+            <li>
+              <p>interop.CimNcAPI.dll</p>
+            </li>
+            <li>
+              <p>interop.CimServicesAPI.dll</p>
+            </li>
+            <li>
+              <p>interop.CimElectrodeAPI.dll</p>
+            </li>
+          </ul>
+        </li>
+      </ol>
+    </li>
+    <li>
+      <p>Code TemplateÂ </p>
+      <p>Copy the following code sample and paste it in the created project.</p>
+      <p class="imprt"><strong>Important: </strong>Replace strings in CimUIInfrastructure.PlugIn.ApiCommand objectâs constructor arguments with strings suitable for plugin.</p>
+      <p class="codesample">public class NewPluginCommand: CimUIInfrastructure.PlugIn.ICimApiCommandPlugin<br/>
+        Â {<br/>
+        Â  Â public CimUIInfrastructure.PlugIn.ApiCommand AppendCommand()<br/>
+        Â  Â  {<br/>
+        CimUIInfrastructure.PlugIn.ApiCommand Command1 = new Â  Â  Â Â <br/>
+        Â  Â  Â  Â CimUIInfrastructure.PlugIn.ApiCommand() Â <br/>
+        Â  Â  Â  Â  Â  Â  {<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  // Set Command name<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  Name = &quot;Command Name&quot;,<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  // Set Toolbar name<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  ToolbarName = &quot;Command ToolsBar&quot;,<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  // Set Main-Menu/Group name<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  MenuPath = &quot;MainMenu\nGroup1&quot;,<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  // Set Caption string<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  Caption = &quot;My Caption&quot;,<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  // Set Tooltip string<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  ToolTip = &quot;My tooltip command&quot;,<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  // Set Description string<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  Description = &quot;My command Description&quot;,<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  // Set visibility file type<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  Application = CimUIInfrastructure.PlugIn.ApiApplications.Part |Â <br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  CimUIInfrastructure.PlugIn.ApiApplications.Assembly,<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  // Call the execute class<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  ExecuteCommand = new MyExecuteCommand(),<br/>
+        Â  Â  Â  Â  Â  Â  };<br/>
+        Â  Â  Â  Â  Â  Â  // Return command object<br/>
+        Â  Â  Â  Â  Â  Â  return Command1;<br/>
+        Â  Â  Â }<br/>
+        Â }<br/>
+        public class MyExecuteCommand : Â  Â Â <br/>
+        CimUIInfrastructure.Commands.ICimWpfCommand<br/>
+        {<br/>
+        Â  Â  Â  Â  public string GetAccelerator()<br/>
+        Â  Â  Â  Â  {<br/>
+        Â  Â  Â  Â  Â  Â  throw new NotImplementedException();<br/>
+        Â  Â  Â  Â  }<br/>
+        Â  Â  Â  Â  public bool OnCommand()<br/>
+        Â  Â  Â  Â  {<br/>
+        Â  Â  Â  Â  Â  Â  ///////////////////////////////////////////<br/>
+        Â  Â  Â  Â  Â  Â  // Create your source code<br/>
+        Â  Â  Â  Â  Â  Â  ///////////////////////////////////////////<br/>
+        Â  Â  Â  Â  Â  Â  MessageBox.Show(&quot;My Plugin command&quot;);<br/>
+        Â  Â  Â  Â  Â  Â  return true;<br/>
+        Â  Â  Â  Â  }<br/>
+        Â  Â  Â  Â  public bool OnCommandDblClk()<br/>
+        Â  Â  Â  Â  {<br/>
+        Â  Â  Â  Â  Â  Â  return false;<br/>
+        Â  Â  Â  Â  }<br/>
+        Â  Â  Â  Â  public CimUIInfrastructure.Commands.CimWpfUICommandStates Â <br/>
+        Â  Â  Â  Â  OnCommandUI()<br/>
+        Â  Â  Â  Â  {<br/>
+        Â  Â  Â  Â  Â  Â  // Set command status (Enable/Disable)<br/>
+        Â  Â  Â  Â  Â  Â  Â var states = new Â <br/>
+        Â  Â  Â  Â  Â  Â  Â CimUIInfrastructure.Commands.CimWpfUICommandStates()<br/>
+        Â  Â  Â  Â  Â  Â {<br/>
+        Â  Â  Â  Â  Â  Â  Â UiState = CimUIInfrastructure.Commands.CommandUIState.Enabled<br/>
+        Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â };<br/>
+        Â  Â  Â  Â  Â  Â  return states;<br/>
+        Â  Â  Â  Â  }<br/>
+        Â  Â  Â  Â  public void SetAccelerator(string accelerator)<br/>
+        Â  Â  Â  Â  {<br/>
+        Â  Â  Â  Â  Â  Â  throw new NotImplementedException();<br/>
+        Â  Â  Â  Â  }<br/>
+        Â  Â  }<br/>
+        Â </p>
+    </li>
+    <li>
+      <p>Get an IApplication InterfaceÂ </p>
+      <p>Copy and paste following code into the <strong>OnCommand()</strong> function to get IApplication Interface.</p>
+      <p class="codesample">// Define an Cimatron Provider object to get the current application<br/>
+        interop.CimServicesAPI.CimApplicationProvider AppProvider = new Â  Â  interop.CimServicesAPI.CimApplicationProvider();<br/>
+        // Define an Application object and get the application object from the Cimatron Provider object<br/>
+        interop.CimatronE.IApplication CimApp = AppProvider.GetApplication();<br/>
+        // Check validation of Cimatron Application<br/>
+        if (CimApp == null)<br/>
+        {<br/>
+        Â  Â  MessageBox.Show(&quot;Cimatron application was not found&quot;);Â <br/>
+        Â  Â  // Add System.Windows.Forms in references to make MessageBox work<br/>
+        }</p>
+    </li>
+    <li>
+      <p>Write Command Execution for Plugin</p>
+      <ol class="LowerAlpha">
+        <li>
+          <p>Ensure that Interop .dll for required APIâs are added int the References.</p>
+        </li>
+        <li>
+          <p>Write the code for command in the <strong>OnCommand()</strong> function by referring to the code mentioned in Step 5. See the example in Appendix A.</p>
+        </li>
+      </ol>
+    </li>
+    <li>
+      <p>Register API CommandÂ </p>
+      <p>Now you are ready to use the created Plugin Command. If the command is not available, reset the toolbar, Menu, and Pane to fix the issue, see Step 8.</p>
+      <ol class="LowerAlpha">
+        <li>
+          <p>Build the project.</p>
+        </li>
+        <li>
+          <p>Open <strong>Register_API_Commands.exe</strong> from &quot;<em>Cimatron Installation Directory/Cimatron/Program/Register_API_Commands.exe</em>&quot;.</p>
+        </li>
+        <li>
+          <p>Click the button by the <strong>Select API Command DLL</strong> path field, and navigate to select your plug-in .dll file from the &quot;<em>Cimatron Installation Directory/Cimatron/Program</em>&quot;.<br/>
+            <img src="../../images/picture5a.png"/>
+          </p>
+        </li>
+        <li>
+          <p>Select the command you want to register from the list.<br/>
+            <img src="../../images/picture5b.png"/>
+          </p>
+        </li>
+        <li>
+          <p>Click <strong>Register API Command</strong>.<br/>
+            <img src="../../images/picture5c.png"/>
+          </p>
+        </li>
+      </ol>
+    </li>
+    <li>
+      <p>For Reference - Reset Toolbar, Menu, and PaneÂ </p>
+      <ol class="LowerAlpha">
+        <li>
+          <p>Close CimatronE.exe if it is open.</p>
+        </li>
+        <li>
+          <p>Open the <strong>Cimatron Control Panel</strong>.</p>
+        </li>
+        <li>
+          <p>In the <strong>Settings</strong> tab, click <strong>Reset All</strong>.<br/>
+            <img src="../../images/picture6.png"/>
+          </p>
+        </li>
+        <li>
+          <p>Launch CimatronE.exe and verify the command is available at the specified locations.</p>
+        </li>
+      </ol>
+    </li>
+  </ol>
+  <h2>Appendix A</h2>
+  <p>This example code will create a plugin command to make a copy of Main UCS at 10mm distance in Z direction.</p>
+  <p class="codesample">using System;<br/>
+    using System.Collections.Generic;<br/>
+    using System.Linq;<br/>
+    using System.Text;<br/>
+    using System.Threading.Tasks;<br/>
+    using System.Windows;<br/>
+    using System.Windows.Forms;<br/>
+    using interop.CimBaseAPI;<br/>
+    using System.Runtime.InteropServices;<br/>
+    namespace PluginCommand_Training<br/>
+    {<br/>
+    Â  public class NewPluginCommand : CimUIInfrastructure.PlugIn.ICimApiCommandPlugin<br/>
+    Â  Â  {<br/>
+    Â  Â  Â  Â  public CimUIInfrastructure.PlugIn.ApiCommand AppendCommand()<br/>
+    Â  Â  Â  Â  {<br/>
+    Â  Â  Â  Â  Â  Â  CimUIInfrastructure.PlugIn.ApiCommand Command1 = new<br/>
+    Â  Â  Â  Â  Â  Â  CimUIInfrastructure.PlugIn.ApiCommand()<br/>
+    Â  Â  Â  Â  Â  Â  {<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  // Set Command name<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  Name = &quot;A UCS&quot;,<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  // Set Toolbar name<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  ToolbarName = &quot;A UCS&quot;,<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  // Set Main-Menu/Group name<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  MenuPath = &quot;MainMenu\nGroup1&quot;,<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  // Set Caption string<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  Caption = &quot;A UCS&quot;,<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  // Set Tooltip string<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  ToolTip = &quot;Creates A UCS&quot;,<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  // Set Description string<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  Description = &quot;Make Copy of Main UCS at 10mm in Z direction&quot;,<br/>
+    &gt;Â  Â  Â  Â  Â  Â  Â  Â  // Set visibility file type<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  Application = CimUIInfrastructure.PlugIn.ApiApplications.Part,<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  // Call the execute class<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  ExecuteCommand = new MyExecuteCommand()<br/>
+    Â  Â  Â  Â  Â  Â  };<br/>
+    Â  Â  Â  Â  Â  Â  // Return command object<br/>
+    Â  Â  Â  Â  Â  Â  return Command1;<br/>
+    Â  Â  Â  Â  }<br/>
+    Â  Â  }<br/>
+    Â  Â  public class MyExecuteCommand : CimUIInfrastructure.Commands.ICimWpfCommand<br/>
+    Â  Â  {<br/>
+    Â  Â  Â  Â  public string GetAccelerator()<br/>
+    Â  Â  Â  Â  {<br/>
+    Â  Â  Â  Â  Â  Â  throw new NotImplementedException();<br/>
+    Â  Â  Â  Â  }<br/>
+    Â  Â  Â  Â  public bool OnCommand()<br/>
+    Â  Â  Â  Â  {<br/>
+    Â  Â  Â  Â  Â  Â  // Get Instance of CimatronE Application as mentioned in Step 5<br/>
+    Â  Â  Â  Â  Â  Â  interop.CimServicesAPI.CimApplicationProvider appProvider = new interop.CimServicesAPI.CimApplicationProvider();<br/>
+    Â  Â  Â  Â  Â  Â  interop.CimatronE.IApplication cimApp = null;<br/>
+    Â  Â  Â  Â  Â  Â  cimApp = appProvider.GetApplication();<br/>
+    Â  Â  Â  Â  Â  Â  if (cimApp == null)<br/>
+    Â  Â  Â  Â  Â  Â  {<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  MessageBox.Show(&quot;Application was not accessed&quot;);<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  return false;<br/>
+    Â  Â  Â  Â  Â  Â  }<br/>
+    ///Code to Generate Desired UCS.<br/>
+    <br/>
+    <br/>
+    Â  Â  Â  Â  Â  Â  interop.CimBaseAPI.ICimDocument aDOC = (interop.CimBaseAPI.ICimDocument)cimApp.GetActiveDoc();<br/>
+    Â  Â  Â  Â  Â  Â  interop.CimMdlrAPI.IModelContainer aModelCont = (interop.CimMdlrAPI.IModelContainer)aDOC;<br/>
+    Â  Â  Â  Â  Â  Â  interop.CimMdlrAPI.MdlrModel aMdlrModel = (interop.CimMdlrAPI.MdlrModel)aModelCont.Model;<br/>
+    //Create Procedure for UCS<br/>
+    Â  Â  Â  Â  Â  Â  interop.CimMdlrAPI.IMdProcedure ProcUCS =Â <br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  (interop.CimMdlrAPI.IMdProcedure)aMdlrModel.CreateProcedure(interop.CimMdlrAPI.MdProcedureType.cmUcsProcedure);<br/>
+    Â  Â  Â  Â  Â  Â  interop.CimMdlrAPI.IMdUcs imdUCs = (interop.CimMdlrAPI.IMdUcs)ProcUCS;<br/>
+    Â  Â  Â  Â  Â  Â  imdUCs.Mode = interop.CimMdlrAPI.UcsMode.cmUcsModeGeometry;<br/>
+    Â  Â  Â  Â  Â  Â  // Create 3 points for UCS<br/>
+    Â  Â  Â  Â  Â  Â  double[] point1 = new double[] { 0, 0, 10 };<br/>
+    Â  Â  Â  Â  Â  Â  double[] point2 = new double[] { 1, 0, 10 };<br/>
+    Â  Â  Â  Â  Â  Â  double[] point3 = new double[] { 0, 1, 10 };<br/>
+    Â  Â  Â  Â  Â  Â  // Assign points to UCS Procedureâs Point parameters<br/>
+    Â  Â  Â  Â  Â  Â  imdUCs.FirstPoint = point1;<br/>
+    Â  Â  Â  Â  Â  Â  imdUCs.SecondPoint = point2;<br/>
+    Â  Â  Â  Â  Â  Â  imdUCs.ThirdPoint = point3;<br/>
+    Â  Â  Â  Â  Â  Â  // Execute the process<br/>
+    Â  Â  Â  Â  Â  Â  ProcUCS.Execute();<br/>
+    Â  Â  Â  Â  Â  Â  return true;<br/>
+    <br/>
+    Â  Â  Â  Â  }<br/>
+    Â  Â  Â  public bool OnCommandDblClk()<br/>
+    Â  Â  Â  Â  {<br/>
+    Â  Â  Â  Â  Â  Â Â <br/>
+    Â  Â  Â  Â  Â  Â  return true;<br/>
+    Â  Â  Â  Â  }<br/>
+    Â  Â  Â  Â  public CimUIInfrastructure.Commands.CimWpfUICommandStates<br/>
+    Â  Â  Â  Â  OnCommandUI()<br/>
+    Â  Â  Â  Â  {<br/>
+    Â  Â  Â  Â  Â  Â  // Set command status (Enable/Disable)<br/>
+    Â  Â  Â  Â  Â  Â  var states = new<br/>
+    Â  Â  Â  Â  Â  Â  CimUIInfrastructure.Commands.CimWpfUICommandStates()<br/>
+    Â  Â  Â  Â  Â  Â  {<br/>
+    Â  Â  Â  Â  Â  Â  Â  Â  UiState = CimUIInfrastructure.Commands.CommandUIState.Enabled<br/>
+    Â  Â  Â  Â  Â  Â  };<br/>
+    Â  Â  Â  Â  Â  Â  return states;<br/>
+    Â  Â  Â  Â  }<br/>
+    Â  Â  Â  Â  public void SetAccelerator(string accelerator)<br/>
+    Â  Â  Â  Â  {<br/>
+    Â  Â  Â  Â  Â  Â  throw new NotImplementedException();<br/>
+    Â  Â  Â  Â  }<br/>
+    Â  }<br/>
+    Â  Â Â <br/>
+    Â };
+  </p>
+  <p>Command will be displayed in Cimatron application as shown in the following image:Â </p>
+  <p><img src="../../images/picture7.png"/><br/>
+    
+  </p>
+  <div data-conref="../../snippets/Internal_Plug_IN_Command.hts">
+ 
+  <p>This section describes the process used to create an internal plug-in command in <span data-keyref="Product_Name"><span>Cimatron</span></span>. Internal plug-in and plug-in commands are similar, internal plug-in commands load the commands from the InternalPlugInCommandlist.xml while the normal plug-in commands load the commands from the ExternalCommands.ini file</p>
+  <h4>Step 1. Export the Visual Studio Template</h4>
+  <ol>
+    <li>
+      <p>Open the<strong> <span data-keyref="Product_Name"><span>Cimatron</span></span> Control Panel</strong>.</p>
+    </li>
+    <li>
+      <p>Click the <strong>Visual Studio Templates</strong> option</p>
+      <p><img alt="Picture 1" src="../../images/create an internal plugin command_files/image1.png"/></p>
+    </li>
+    <li>
+      <p>Select <strong>Project Type</strong>: <em>Plugin Command</em> and export the template.</p>
+      <p><img alt="Picture 1" height="325" src="../../images/create an internal plugin command_files/image2.png" width="349"/></p>
+    </li>
+  </ol>
+  <h4>Step2. Create a Visual Studio Project for the Plugin Command</h4>
+  <ol>
+    <li>
+      <p>Open Visual Studio.</p>
+    </li>
+    <li>
+      <p>Create a new project.</p>
+    </li>
+    <li>
+      <p>Choose <em><span data-keyref="Product_Name"><span>Cimatron</span></span> C# Plugin Command</em> as the project type.Â </p>
+    </li>
+    <li>
+      <p>Click <strong>Next</strong>. The project will be created with all required dependencies and references.</p>
+      <p><img alt="Picture 1" height="325" src="../../images/create an internal plugin command_files/image3.png" width="349"/></p>
+    </li>
+  </ol>
+  <h4>Step 3: Implement the Plugin Command</h4>
+  <p><strong>Plugin Command Class</strong></p>
+  <p>The class (such as MyPluginCommand) is derived from ICimApiCommandPlugin.</p>
+  <p>For internal commands we support Name, Caption, Tooltip, Description, and ExecuteCommand. You can set these parameters in the existing code,Â or you can use following sample code.</p>
+  <p class="codesample">public class MyPluginCommand : CimUIInfrastructure.PlugIn.ICimApiCommandPlugin</p>
+  <p class="codesample">{</p>
+  <p class="codesample">public CimUIInfrastructure.PlugIn.ApiCommand AppendCommand()</p>
+  <p class="codesample">{</p>
+  <p class="codesample">CimUIInfrastructure.PlugIn.ApiCommand Command1 = new CimUIInfrastructure.PlugIn.ApiCommand();</p>
+  <p class="codesample">// Set Command name</p>
+  <p class="codesample">Command1.Name = &quot;My Command&quot;;</p>
+  <p class="codesample">// Set Caption string</p>
+  <p class="codesample">Command1.Caption = &quot;My Command Caption&quot;;</p>
+  <p class="codesample">// Set Tool tip string</p>
+  <p class="codesample">Command1.ToolTip = &quot;My Command Tool tip&quot;;</p>
+  <p class="codesample">// Set Description string</p>
+  <p class="codesample">Command1.Description = &quot;My Command Tool Description&quot;;</p>
+  <p class="codesample">// Call the execute class</p>
+  <p class="codesample">Command1.ExecuteCommand = new MyCommandExecution();</p>
+  <p class="codesample">// Return command object</p>
+  <p class="codesample">return Command1;</p>
+  <p class="codesample">}</p>
+  <p class="codesample">}</p>
+  <p><strong>Command Execution Class.</strong></p>
+  <p>The default class (such asÂ MyCommandExecution) is derived from ICimWpfCommand.</p>
+  <p>If the sample code is not already present in the MyCommandExecution, you can use following sample code.</p>
+  <p>Â </p>
+  <p class="codesample">// This class used to get a notification from Cimatron when plug in command is used.</p>
+  <p class="codesample">class MyCommandExecution : CimUIInfrastructure.Commands.ICimWpfCommand</p>
+  <p class="codesample">{</p>
+  <p class="codesample">public string GetAccelerator()</p>
+  <p class="codesample">{</p>
+  <p class="codesample">return &quot;&quot;;</p>
+  <p class="codesample">}</p>
+  <p class="codesample">// This method called when plug in command is double clicked</p>
+  <p class="codesample">public bool OnCommandDblClk()</p>
+  <p class="codesample">{</p>
+  <p class="codesample">MessageBox.Show(&quot;Double-Click on My Button Pressed!&quot;);</p>
+  <p class="codesample">return true;</p>
+  <p class="codesample">}</p>
+  <p class="codesample">// This method called when plug in command is clicked</p>
+  <p class="codesample">public bool OnCommand()</p>
+  <p class="codesample">{</p>
+  <p class="codesample">MessageBox.Show(&quot;My Button Pressed!&quot;);</p>
+  <p class="codesample">return true;</p>
+  <p class="codesample">}</p>
+  <p class="codesample">Â </p>
+  <p class="codesample">// This call back used to handle UI for the command such as enable and disable</p>
+  <p class="codesample">public CimUIInfrastructure.Commands.CimWpfUICommandStates OnCommandUI()</p>
+  <p class="codesample">{</p>
+  <p class="codesample">// Set command status (Enable/Disable)</p>
+  <p class="codesample">var states = new CimUIInfrastructure.Commands.CimWpfUICommandStates()</p>
+  <p class="codesample">{</p>
+  <p class="codesample">UiState = CimUIInfrastructure.Commands.CommandUIState.Enabled</p>
+  <p class="codesample">};</p>
+  <p class="codesample">return states;</p>
+  <p class="codesample">}</p>
+  <p class="codesample">public void SetAccelerator(string accelerator) {}</p>
+  <p class="codesample">}</p>
+  <h4>Step 4: Build the project.</h4>
+  <p>Ensure the build location is same as the <span data-keyref="Product_Name"><span>Cimatron</span></span> installation location. Then build the project.</p>
+  <h4>Step 5. Add Command in the InternalPlugInCommandlist.xml</h4>
+  <p>Open the InternalPlugInCommandlist file from theÂ <span data-keyref="Product_Name"><span>Cimatron</span></span> installation location.</p>
+  <p>In the file, add the plug-in command class name assigned to your command.</p>
+  <p><strong>Example</strong></p>
+  <p class="codesample">&lt;Command CimCommandID=&quot;52000&quot; Customization=&quot;True&quot; Keyboard=&quot;True&quot; PlugInDll=&quot;CimatronAPICSharpPluginCommand1.MyPluginCommand&quot; Customization_Tooltip=&quot;Valid Command&quot; Application=&quot;Part&quot; ExcludeApplication=&quot;None&quot; /&gt;</p>
+  <p><strong>Parameter Details</strong></p>
+  <div align="left">
+    <table border="1.3" cellspacing="0" class="TableGrid TableGrid oddRows evenRows firstCol firstRow" style=" margin-left: 0;">
+      <colgroup>
+        <col style="width:63.2px"/>
+        <col style="width:146.46666666666666666666666667px"/>
+        <col style="width:413.66666666666666666666666667px"/>
+      </colgroup>
+      <tbody>
+        <tr>
+          <td class="position-relative">
+            <p>No.</p>
+          </td>
+          <td class="position-relative">
+            <p>Name</p>
+          </td>
+          <td class="position-relative">
+            <p>Description</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="position-relative">
+            <p>1.</p>
+          </td>
+          <td class="position-relative">
+            <p>CimCommandID</p>
+          </td>
+          <td class="position-relative">
+            <p>Unique numeric ID for the command. Must not conflict with existing commands</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="position-relative">
+            <p>2.</p>
+          </td>
+          <td class="position-relative">
+            <p>Customization</p>
+          </td>
+          <td class="position-relative">
+            <p>True â Command appears in customization dialogs.</p>
+            <p>False â Command is hidden from customization.</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="position-relative">
+            <p>3.</p>
+          </td>
+          <td class="position-relative">
+            <p>Keyboard</p>
+          </td>
+          <td class="position-relative">
+            <p>True â User can assign a keyboard shortcut.</p>
+            <p>False â No keyboard shortcut support.</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="position-relative">
+            <p>4.</p>
+          </td>
+          <td class="position-relative">
+            <p>PlugInDll</p>
+          </td>
+          <td class="position-relative">
+            <p>Fully qualified name of the command class using the format: Namespace.classname</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="position-relative">
+            <p>5.</p>
+          </td>
+          <td class="position-relative">
+            <p>Customization_Tooltip</p>
+          </td>
+          <td class="position-relative">
+            <p>Tool tip for the command.</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="position-relative">
+            <p>6.</p>
+          </td>
+          <td class="position-relative">
+            <p>Application</p>
+          </td>
+          <td class="position-relative">
+            <p>Specifies in which applications the command is visible</p>
+            <p>Example: Part, Assembly.</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="position-relative">
+            <p>7.</p>
+          </td>
+          <td class="position-relative">
+            <p>ExcludeApplication</p>
+          </td>
+          <td class="position-relative">
+            <p>Specifies environments where the command should not visible.</p>
+            <p>Example: None or NC.</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+</div>
+  <div>
+    <figure style="text-align:end;"><img src="../../images/logo_cimatron_logo_tm_3d_systems_small.png"/></figure>
+    
+  </div>
+
+</body></html>

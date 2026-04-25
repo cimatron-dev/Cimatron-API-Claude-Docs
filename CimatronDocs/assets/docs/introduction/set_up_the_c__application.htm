@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+
+  <meta name="gRootRelPath" content="../../.."/>
+	<meta name="gCommonRootRelPath" content="../../.."/>
+  <meta name="gTopicId" content="1.1.0_1"/>
+  <script type="text/javascript" src="../../../template/scripts/rh.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/common.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/topic.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/topicwidgets.min.js"></script>
+<script type="text/javascript" src="../../../whxdata/projectsettings.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../template/styles/topic.min.css"/>
+  <link rel="stylesheet" type="text/css" href="../../../template/cimatron/topicheader.css"/>
+  <meta name="topic-status" content="Draft"/>
+<link rel="stylesheet" type="text/css" href="../../css/cimatrone_help.css"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="generator" content="Adobe RoboHelp 2022"/>
+  <title>Set up the C# Application</title>
+  <meta name="topic-status" content="Draft"/>
+  <meta name="template" content="../../layouts/Topic.htt"/>
+  
+  
+</head>
+
+<body>
+  <div class="topic-header rh-hide" id="rh-topic-header">
+    <div class="logo">
+    </div>
+    <div class="nav">
+      <div class="title" title="API Documentation">
+        <span>API Documentation</span>
+      </div>
+      <div class="gotohome" title="Click here to see this page in full context">
+        <a href="#" onclick="rh._.goToFullLayout()">Click here to see this page in full context</a>
+      </div>
+    </div>
+  </div>
+  <div class="topic-header-shadow rh-hide" id="rh-topic-header-shadow"></div>
+
+
+
+  <div>Â </div>
+  <div>
+  <h1>API Application (C#) Project</h1>
+  <p>The steps required to create an API application are shown here. This example was created using Visual Studio 2022.</p>
+  <p>There are 5 steps;</p>
+  <ol class="Decimal">
+    <li><a href="#createSolution">Create a new Solution</a></li>
+    <li><a href="#projectConfig">Configure the Project</a></li>
+    <li><a href="#interopRefs">Add Interop References</a></li>
+    <li><a href="#manifestFile">Add the Manifest file</a></li>
+    <li><a href="#IappIface">Access the iApplication interface</a></li>
+  </ol>
+  <h2><a id="createSolution"></a>Create a new Solution</h2>
+  <p>The Solution acts as the container for all the work you will do.</p>
+  <ol class="Decimal">
+    <li>Start a New Project. Open Visual Studio and click <strong>File</strong> &gt; <strong>New</strong> &gt; <strong>Project</strong> (or use the keyboard shortcut <strong>Ctrl-Shift-N</strong>) to start the new project wizard.</li>
+    <li>Filter the list of templates using the selectors at the top of the right hand pane. Use the filter settings <em>C#</em>, <em>Windows</em>, and <em>Console</em>.Â <br/>
+      <img height="315" src="../../images/newproject_filters.png" width="800"/>
+    </li>
+    <li>In the list of results, select <em>Console App (.NET Framework)</em>.<br/>
+      <img height="308" src="../../images/newproject_dotnetfw.png" width="800"/>
+    </li>
+    <li>Click <strong>Next</strong>.</li>
+    <li>In the next wizard screen, provide a <strong>Project name</strong>, select a storage <strong>Location </strong>and select <em>.NETÂ Framework 4.8</em> in the <strong>Framework</strong> dropdown. The Solution name is derived from the Project Name.
+      <p class="Note_Head"><strong>Note</strong>Â If <em>.NETÂ Framework 4.8</em> is not displayed, select any other framework in the dropdown,Â then follow the optional steps in Configure the Project.</p>
+    </li>
+    <li>Click <strong>Create</strong>.</li>
+  </ol>
+  <h2><a id="projectConfig"></a>Configure the Project</h2>
+  <p>The project requires additional configuration to ensure it is compatible.</p>
+  <ol class="Decimal">
+    <li>Go to <strong>Project </strong>&gt; <strong>&lt;Project Name&gt; Properties</strong>. The Project Properties tab has a list of options on the leftmost side, the Application tab is open by default.</li>
+    <li><strong>OPTIONAL</strong> - If <em>.NETÂ Framework 4.8</em>Â was not available when the project was created;
+      <ul>
+        <li>Click <strong>Target Framework:</strong> &gt; <strong>Install other Frameworks...</strong>Â to openÂ theÂ <b>Download .NET SDKs for Visual Studio </b>in your default browser.</li>
+        <li>From .NET Framework section, click the <strong>Developer Pack</strong> link for .NET Framework 4.8.Â <br/>
+          <img height="380" src="../../images/otherframeworksoptional.png" width="600"/><br/>
+          If the download doesn&#39;t start automatically, click on the link to download it manually.
+        </li>
+        <li>When download is complete, install the package.</li>
+        <li>Close and Reopen the software. Visual Studio&#39;s .NET Framework 4.8 will be visible in the <strong>Target Framework:Â </strong>dropdown.</li>
+      </ul>
+    </li>
+    <li>Open <strong>Project </strong>&gt; <strong>&lt;Project Name&gt; Properties &gt;Â </strong><strong>Build</strong>.
+      <ul>
+        <li>In the <strong>Platform </strong>dropdown, select <em>Active(x64)</em>.</li>
+        <li>In the <strong>Output </strong>panel, browse to set the <strong>Output Path</strong> to your <span data-keyref="Product_Name"><span>Cimatron</span></span> installation <em>Program </em>folder (typically <em>..\Program Files\<span data-keyref="Product_Name"><span>Cimatron</span></span>\<span data-keyref="Product_Name"><span>Cimatron</span></span>\&lt;version&gt;\Program\</em>).</li>
+      </ul>
+    </li>
+    <li><strong>Save </strong>and <strong>Close </strong>the Properties tab.</li>
+  </ol>
+  <h2><a id="interopRefs"></a>Add Interop References</h2>
+  <p>Interop references provide specific functionality to the application, such as access to the commands and functions in <span data-keyref="Product_Name"><span>Cimatron</span></span>.</p>
+  <ol>
+    <li>
+      <p>If the Solution Explorer is not displayed, click <strong>View</strong>&gt;<strong>Solution Explorer</strong>, or use the keyboard shortcut <strong>Ctrl+Alt+L</strong>.</p>
+    </li>
+    <li>
+      <p>Right-click on <b>References</b> in Solution Explorer and select the <b>Add Reference</b> option.<br/>
+        <img src="../../images/newproject_addrefs.png"/>
+      </p>
+    </li>
+    <li><strong>Browse </strong>to <em>..\Cimatron\ProgramÂ </em>and add all <span data-keyref="Product_Name"><span>Cimatron</span></span> API Interop Files by selecting the checkboxes.<br/>
+      <img height="253" src="../../images/newproject_interops.png" width="800"/><br/>
+      Select the following files;
+      <ul>
+        <li>interop.CimAppAccess.dll</li>
+        <li>interop.CimatronE.dll</li>
+        <li>interop.CimBaseAPI.dll</li>
+        <li>interop.CimMdlrAPI.dll</li>
+        <li>interop.CIMMiscAPI.dll</li>
+        <li>interop.CimNcAPI.dll</li>
+        <li>interop.CimServicesAPI.dll</li>
+        <li>interop.CimElectrodeAPI.dll</li>
+      </ul>
+    </li>
+  </ol>
+  <h2><a id="manifestFile"></a>Add Manifest File</h2>
+  <ol class="Decimal">
+    <li>In Solution Explorer, right-click on the project name, then select <strong>Add </strong>&gt; <strong>New Item...</strong>.<br/>
+      <img height="283" src="../../images/newproject_additem.png" width="600"/>
+    </li>
+    <li>Select the <em>Application Manifest File</em> option (the default file name is app.manifest).Â <br/>
+      <img height="556" src="../../images/newproject_manifestfile.png" width="800"/>
+    </li>
+    <li>Update the Manifest file.
+      <ul>
+        <li>Replace all the manifest file content with content from the example <a href="manifest_file.htm">C# Manifest File</a>.</li>
+        <li>Replace <em>Application Name</em>Â in the first <span class="codesample">â¹assemblyIdentityâº</span> tag with name of your project.<br/>
+          <img height="167" src="../../images/manifestedit.png" width="800"/>
+        </li>
+      </ul>
+    </li>
+    <li>Check in the <strong>Project Properties</strong> &gt; <strong>Application</strong> tab &gt; <strong>ResourcesÂ </strong>pane that the <strong>Manifest</strong> field includes the name of the manifest file.<br/>
+      <img height="506" src="../../images/newproject_manifestfileregistered.png" width="800"/>
+    </li>
+  </ol>
+  <h2><a id="IappIface"></a>Access the iApplication interface</h2>
+  <p>There are two ways to access the interface, the one you use depends on whether your application will be used with a running instance of <span data-keyref="Product_Name"><span>Cimatron</span></span>, or if it will create a new <span data-keyref="Product_Name"><span>Cimatron</span></span> instance.</p>
+  <ol class="Decimal">
+    <li>Open <strong>Solution Explorer</strong> &gt; <strong>Project Name</strong> &gt; <strong>Program.cs</strong>Â and add the appropriate code in the <span class="codesample">static void Main(string[] args)</span> section.
+      <ul>
+        <li>
+          <p>If <span data-keyref="Product_Name"><span>Cimatron</span></span> is running, theÂ AppAccess class gives access to the running application.Â <br/>
+            <span class="codesample">interop.CimAppAccess.AppAccess CimAppAcc = new interop.CimAppAccess.AppAccess();<br/>
+              interop.CimatronE.IApplication CimApp = (interop.CimatronE.IApplication)CimAppAcc.GetApplication();<br/>
+              var id = CimApp.ProcessId;</span>
+          </p>
+        </li>
+        <li>
+          <p>If <span data-keyref="Product_Name"><span>Cimatron</span></span> isnt running, open it - CimUtilityApp will open a new instance of <span data-keyref="Product_Name"><span>Cimatron</span></span>.<br/>
+            <span class="codesample">interop.CimAppAccess.CimUtilityApp cimUtilityApp = new interop.CimAppAccess.CimUtilityApp();<br/>
+              interop.CimatronE.IApplication CimApp = (interop.CimatronE.IApplication)cimUtilityApp.GetIApplication();<br/>
+              int id = CimApp.ProcessId;</span>
+          </p>
+        </li>
+      </ul>
+      <p>The image here shows the first option;<br/>
+        <img height="351" src="../../images/newproject_program-cs.png" width="800"/>
+      </p>
+    </li>
+    <li>
+      <p>Click <strong>Start </strong>to test the configuration.<br/>
+        <img src="../../images/newproject_start.png"/>
+      </p>
+    </li>
+  </ol>
+  
+
+</div>
+  <div>
+    <figure style="text-align:end;"><img src="../../images/logo_cimatron_logo_tm_3d_systems_small.png"/></figure>
+    
+  </div>
+
+</body></html>

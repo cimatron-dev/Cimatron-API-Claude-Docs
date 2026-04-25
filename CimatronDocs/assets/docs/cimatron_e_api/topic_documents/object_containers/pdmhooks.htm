@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+
+  <meta name="gRootRelPath" content="../../../../.."/>
+	<meta name="gCommonRootRelPath" content="../../../../.."/>
+  <meta name="gTopicId" content="1.3.1.2.3"/>
+  <script type="text/javascript" src="../../../../../template/scripts/rh.min.js"></script>
+  <script type="text/javascript" src="../../../../../template/scripts/common.min.js"></script>
+  <script type="text/javascript" src="../../../../../template/scripts/topic.min.js"></script>
+  <script type="text/javascript" src="../../../../../template/scripts/topicwidgets.min.js"></script>
+<script type="text/javascript" src="../../../../../whxdata/projectsettings.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../../../template/styles/topic.min.css"/>
+  <link rel="stylesheet" type="text/css" href="../../../../../template/cimatron/topicheader.css"/>
+  <meta name="topic-status" content="Draft"/>
+<link rel="stylesheet" type="text/css" href="../../../../css/cimatrone_help.css"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="generator" content="Adobe RoboHelp 2022"/>
+  <title>PDMHooks</title>
+  
+  
+  <meta name="rh-index-keywords" content="API:PDMHooks - API,PDMHooks"/>
+</head>
+
+<body>
+  <div class="topic-header rh-hide" id="rh-topic-header">
+    <div class="logo">
+    </div>
+    <div class="nav">
+      <div class="title" title="API Documentation">
+        <span>API Documentation</span>
+      </div>
+      <div class="gotohome" title="Click here to see this page in full context">
+        <a href="#" onclick="rh._.goToFullLayout()">Click here to see this page in full context</a>
+      </div>
+    </div>
+  </div>
+  <div class="topic-header-shadow rh-hide" id="rh-topic-header-shadow"></div>
+
+
+
+  <div>Â </div>
+  <div>
+  <h1>PDMHooks</h1>
+  <p data-conref="../../../../snippets/API chart intro.hts">The chart for this section of the API is displayed below. Click on an item in the chart to jump to that Help topic. To view the full system API chart, click <a href="../../../../../cimatron_api_main_chart.htm">here</a>.
+    
+  </p>
+  <p style="background-color: Transparent;"><img alt="" border="0" src="../../../../images/datamanagement++pdmhooks.png" style="border: none;" usemap="#imagemap"/><map data-img-height="57" data-img-width="145" name="imagemap"><area alt="" coords="3, 30, 142, 55" href="../../elite_api_interfaces/ipdmhooks/ipdmhooks.htm" shape="rect" title=""/></map></p>
+  <h2>Using PdmHooks</h2>
+  <p>You must create a class derived from the IDMHooks component to captureÂ data management events. After creating and implementing your class you have register this class library (.dll) in the registry and in the <span class="urlvalue">DmHooksConfig.ini</span> file, using a method appropriate to the implementation programming language.Â Console applications do not require class registration in the registry.</p>
+  <p>The CLSID of the corresponding COM component must be registered (by you) in the system registry.Â There are two ways to do this:</p>
+  <ol>
+    <li>
+      <p>Use the <span data-keyref="Product_Name"><span>Cimatron</span></span><span class="urlvalue">Register_API_Commands.exe</span> if you have the command plug-in with hooks.</p>
+    </li>
+    <li>
+      <p>Register the class using theÂ Assembly Registration toolÂ <span class="urlvalue">regasm</span> for .NETÂ dlls.</p>
+    </li>
+  </ol>
+  <h3><a id="regasm"></a>Registering your .NET .dllÂ using regasm</h3>
+  <ol>
+    <li>
+      <p>Open a Command WindowÂ as an administrator.</p>
+    </li>
+    <li>
+      <p>Paste the following command into theÂ window and press <strong>Return</strong>:<br/>
+        <span class="urlvalue">C:\WINDOWS\Microsoft.NET\Framework64\v4.0.30319\regasm.exe &quot;FULLPATH OF YOUR DLL&quot; /codebase</span>
+      </p>
+    </li>
+    <li>
+      <p>An alert will say registration was successful. Close this window.</p>
+    </li>
+    <li>
+      <p>Open <span class="urlvalue">DmHooksConfig.ini</span> file using a text editor (such as Notepad) from this location;<br/>
+        <span class="urlvalue">C:\ProgramData\Cimatron\Cimatron\&lt;yourversion&gt;\Data</span>
+      </p>
+    </li>
+    <li>
+      <p>Add the following line under <span class="urlvalue">[DmHook Callbacks]</span>;<br/>
+        <span class="urlvalue">HOOKS=Namespace.HookClassNameÂ </span>
+      </p>
+    </li>
+    <li>
+      <p>Save and close file.</p>
+    </li>
+  </ol>
+  <p>When you next launch <span data-keyref="Product_Name"><span>Cimatron</span></span>, callback for data management is available.</p>
+  <h3>Example -Â Using Visual Studio C#</h3>
+  <ol class="Decimal">
+    <li>
+      <p>Create new Visual Studio project using the C# library in .NET Framework (use .Net framework 4.8).<br/>
+        <img src="../../../../images/visualstudio.png"/>
+      </p>
+    </li>
+    <li>
+      <p>Set the project output path to the <span data-keyref="Product_Name"><span>Cimatron</span></span> installation folder directory.</p>
+    </li>
+    <li>
+      <p>Add <span class="urlvalue">interop.CimBaseAPI</span>Â to the project as a Project Reference.</p>
+    </li>
+    <li>
+      <p>Change configuration to x64.<br/>
+        <img src="../../../../images/configx64.png"/>
+      </p>
+    </li>
+    <li>
+      <p>Derive class from <span class="urlvalue">interop.CimBaseAPI.IDMHooks</span>.</p>
+    </li>
+    <li>
+      <p>Edit the assembly attribiute <span class="urlvalue">ComVisible</span>. Change the value to <span class="urlvalue">true</span>.<br/>
+        <img height="399" src="../../../../images/visualstudio_comvisible.png" width="650"/>
+      </p>
+    </li>
+    <li>
+      <p>Build the project. The new .dll file is added to the <span data-keyref="Product_Name"><span>Cimatron</span></span> installation directory.</p>
+    </li>
+    <li>
+      <p>Register this .dll using regasm, as <a href="#regasm">described earlier</a>.</p>
+    </li>
+    <li>
+      <p>Open <span class="urlvalue">DmHooksConfig.ini</span> file using a text editor (such as Notepad) from this location;<br/>
+        <span class="urlvalue">C:\ProgramData\Cimatron\Cimatron\&lt;yourversion&gt;\Data</span>
+      </p>
+    </li>
+    <li>
+      <p>Add the following line under <span class="urlvalue">[DmHook Callbacks]</span>;<br/>
+        <span class="urlvalue">HOOKS=Namespace.HookClassNameÂ </span><br/>
+        Now your hook is attached to <span data-keyref="Product_Name"><span>Cimatron</span></span>.
+      </p>
+    </li>
+  </ol>
+  <p class="Note_Head"><strong>Note:</strong> The source files for this project can be downloaded by clicking this <a href="../../../../media/dmhookdemo.zip">link</a>.</p>
+  <h2>The Interface</h2>
+  <p>Two methods are added to the interface before and after processing each event.</p>
+  <table class="borderonly">
+    <colgroup>
+      <col/>
+      <col/>
+    </colgroup>
+    <tbody>
+      <tr>
+        <td>
+          <p><strong>Before</strong></p>
+        </td>
+        <td>
+          <p>These events are invoked when the event is about to be triggered. This makes it possible to substitute user-defined processing for default processing of the event or cancel the processing. The method returns the user&#39;s choice, which can be one of the following:</p>
+          <div data-conref="../../../../snippets/ReturnedUserChoice.hts">
+  <ul>
+    <li>
+      <p>Process (0)âThe user processes the event</p>
+    </li>
+    <li>
+      <p>Continue (1)âThe user passes the control to <span data-keyref="Product_Name"><span>Cimatron</span></span>; the default processing of the event will be performed</p>
+    </li>
+    <li>
+      <p>Cancel (2)âThe user cancels the event&#39;s processing</p>
+    </li>
+  </ul>
+
+</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p><strong>After</strong></p>
+        </td>
+        <td>
+          <p>These events are invoked after the event has been processed. This method passes the user the result of the event&#39;s processing, which can be one of the following:<strong></strong></p>
+          <div data-conref="../../../../snippets/ReturnedEventProcessing.hts">
+  <ul>
+    <li>
+      <p>ProcessedâThe event was processed</p>
+    </li>
+    <li>
+      <p>SucceededâThe event was processed successfully</p>
+    </li>
+    <li>
+      <p>FailedâThe event was processed and has resulted in failure</p>
+    </li>
+    <li>
+      <p>CancelledâThe event&#39;s processing was cancelled</p>
+    </li>
+  </ul>
+
+</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Events Identification</h3>
+  <p>A unique number, relative to the <span data-keyref="Product_Name"><span>Cimatron</span></span> session, identifies each event. For two consecutive events, the second (later) event will be identified by a greater number than the first.</p>
+  <p>This identifier is passed to both the <strong>Before</strong> and <strong>After</strong> methods of the event.</p>
+  <p>This gives you the ability to determine the scope of an event. Otherwise, due to event nesting, it would be difficult to associate a pair of <strong>Before</strong> and <strong>After</strong> method calls with one event.</p>
+
+</div>
+  <div>
+    <figure style="text-align:end;"><img src="../../../../images/logo_cimatron_logo_tm_3d_systems_small.png"/></figure>
+    
+  </div>
+
+</body></html>

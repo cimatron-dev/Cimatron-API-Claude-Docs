@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+
+  <meta name="gRootRelPath" content="../../.."/>
+	<meta name="gCommonRootRelPath" content="../../.."/>
+  <meta name="gTopicId" content="1.2.0_2"/>
+  <script type="text/javascript" src="../../../template/scripts/rh.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/common.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/topic.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/topicwidgets.min.js"></script>
+<script type="text/javascript" src="../../../whxdata/projectsettings.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../template/styles/topic.min.css"/>
+  <link rel="stylesheet" type="text/css" href="../../../template/cimatron/topicheader.css"/>
+  <meta name="topic-status" content="Draft"/>
+<link rel="stylesheet" type="text/css" href="../../css/cimatrone_help.css"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="generator" content="Adobe RoboHelp 2022"/>
+  <title>Python Manifest file</title>
+  <meta name="topic-status" content="Draft"/>
+  
+  
+</head>
+
+<body>
+  <div class="topic-header rh-hide" id="rh-topic-header">
+    <div class="logo">
+    </div>
+    <div class="nav">
+      <div class="title" title="API Documentation">
+        <span>API Documentation</span>
+      </div>
+      <div class="gotohome" title="Click here to see this page in full context">
+        <a href="#" onclick="rh._.goToFullLayout()">Click here to see this page in full context</a>
+      </div>
+    </div>
+  </div>
+  <div class="topic-header-shadow rh-hide" id="rh-topic-header-shadow"></div>
+
+
+
+  <div>Â </div>
+  <div>
+  <h1>Python Manifest File</h1>
+  <p>Create the Manifest file using this template.</p>
+  <p class="codesample">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;<br/>
+    &lt;assembly xmlns=&quot;urn:schemas-microsoft-com:asm.v1&quot; manifestVersion=&quot;1.0&quot;&gt;<br/>
+    Â Â  Â &lt;assemblyIdentity name=&quot;Application Name&quot; type=&quot;win32&quot; version=&quot;12.0.0.0&quot;&gt;&lt;/assemblyIdentity&gt;<br/>
+    Â Â  Â &lt;dependency&gt;<br/>
+    Â Â  Â Â Â  Â &lt;dependentAssembly&gt;<br/>
+    Â Â  Â Â Â  Â Â Â  Â &lt;assemblyIdentity name=&quot;CimAppAccess&quot; version=&quot;12.0.0.0&quot; type=&quot;win32&quot;&gt;&lt;/assemblyIdentity&gt;<br/>
+    Â Â  Â Â Â  Â &lt;/dependentAssembly&gt;<br/>
+    Â Â  Â &lt;/dependency&gt;<br/>
+    Â Â  Â &lt;dependency&gt;<br/>
+    Â Â  Â Â Â  Â &lt;dependentAssembly&gt;<br/>
+    Â Â  Â Â Â  Â Â Â  Â &lt;assemblyIdentity name=&quot;CimBaseAPI&quot; version=&quot;12.0.0.0&quot; type=&quot;win32&quot;&gt;&lt;/assemblyIdentity&gt;<br/>
+    Â Â  Â Â Â  Â &lt;/dependentAssembly&gt;<br/>
+    Â Â  Â &lt;/dependency&gt;<br/>
+    Â Â  Â &lt;dependency&gt;<br/>
+    Â Â  Â Â Â  Â &lt;dependentAssembly&gt;<br/>
+    Â Â  Â Â Â  Â Â Â  Â &lt;assemblyIdentity name=&quot;CimServicesAPI&quot; version=&quot;12.0.0.0&quot; type=&quot;win32&quot;&gt;&lt;/assemblyIdentity&gt;<br/>
+    Â Â  Â Â Â  Â &lt;/dependentAssembly&gt;<br/>
+    Â Â  Â &lt;/dependency&gt;<br/>
+    Â Â  Â &lt;dependency&gt;<br/>
+    Â Â  Â Â Â  Â &lt;dependentAssembly&gt;<br/>
+    Â Â  Â Â Â  Â Â Â  Â &lt;assemblyIdentity name=&quot;CimMdlrAPI&quot; version=&quot;12.0.0.0&quot; type=&quot;win32&quot;&gt;&lt;/assemblyIdentity&gt;<br/>
+    Â Â  Â Â Â  Â &lt;/dependentAssembly&gt;<br/>
+    Â Â  Â &lt;/dependency&gt;<br/>
+    Â Â  Â &lt;dependency&gt;<br/>
+    Â Â  Â Â Â  Â &lt;dependentAssembly&gt;<br/>
+    Â Â  Â Â Â  Â Â Â  Â &lt;assemblyIdentity name=&quot;CimMiscAPI&quot; version=&quot;12.0.0.0&quot; type=&quot;win32&quot;&gt;&lt;/assemblyIdentity&gt;<br/>
+    Â Â  Â Â Â  Â &lt;/dependentAssembly&gt;<br/>
+    Â Â  Â &lt;/dependency&gt;<br/>
+    Â Â  Â &lt;dependency&gt;<br/>
+    Â Â  Â Â Â  Â &lt;dependentAssembly&gt;<br/>
+    Â Â  Â Â Â  Â Â Â  Â &lt;assemblyIdentity name=&quot;CimNcAPI&quot; version=&quot;12.0.0.0&quot; type=&quot;win32&quot;&gt;&lt;/assemblyIdentity&gt;<br/>
+    Â Â  Â Â Â  Â &lt;/dependentAssembly&gt;<br/>
+    Â Â  Â &lt;/dependency&gt;<br/>
+    Â Â  Â &lt;dependency&gt;<br/>
+    Â Â  Â Â Â  Â &lt;dependentAssembly&gt;<br/>
+    Â Â  Â Â Â  Â Â Â  Â &lt;assemblyIdentity name=&quot;CimDrftAPI&quot; version=&quot;12.0.0.0&quot; type=&quot;win32&quot;&gt;&lt;/assemblyIdentity&gt;<br/>
+    Â Â  Â Â Â  Â &lt;/dependentAssembly&gt;<br/>
+    Â Â  Â &lt;/dependency&gt;<br/>
+    Â Â  Â &lt;dependency&gt;<br/>
+    Â Â  Â Â Â  Â &lt;dependentAssembly&gt;<br/>
+    Â Â  Â Â Â  Â Â Â  Â &lt;assemblyIdentity name=&quot;CimElectrodeAPI&quot; version=&quot;12.0.0.0&quot; type=&quot;win32&quot;&gt;&lt;/assemblyIdentity&gt;<br/>
+    Â Â  Â Â Â  Â &lt;/dependentAssembly&gt;<br/>
+    Â Â  Â &lt;/dependency&gt;<br/>
+    Â Â  Â &lt;trustInfo xmlns=&quot;urn:schemas-microsoft-com:asm.v2&quot;&gt;<br/>
+    Â Â  Â Â Â  Â &lt;security&gt;<br/>
+    Â Â  Â Â Â  Â Â Â  Â &lt;requestedPrivileges xmlns=&quot;urn:schemas-microsoft-com:asm.v3&quot;&gt;<br/>
+    Â Â  Â Â Â  Â Â Â  Â Â Â  Â &lt;requestedExecutionLevel level=&quot;asInvoker&quot; uiAccess=&quot;false&quot;/&gt;<br/>
+    Â Â  Â Â Â  Â Â Â  Â &lt;/requestedPrivileges&gt;<br/>
+    Â Â  Â Â Â  Â &lt;/security&gt;<br/>
+    Â Â  Â &lt;/trustInfo&gt;<br/>
+    &lt;/assembly&gt;</p>
+
+</div>
+  <div>
+    <figure style="text-align:end;"><img src="../../images/logo_cimatron_logo_tm_3d_systems_small.png"/></figure>
+    
+  </div>
+
+</body></html>

@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+
+  <meta name="gRootRelPath" content="../.."/>
+	<meta name="gCommonRootRelPath" content="../.."/>
+  <meta name="gTopicId" content="1.4.2_1"/>
+  <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+  <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+  <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+  <script type="text/javascript" src="../../template/scripts/topicwidgets.min.js"></script>
+<script type="text/javascript" src="../../whxdata/projectsettings.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css"/>
+  <link rel="stylesheet" type="text/css" href="../../template/cimatron/topicheader.css"/>
+  <meta name="topic-status" content="Draft"/>
+<link rel="stylesheet" type="text/css" href="../css/cimatrone_help.css"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="generator" content="Adobe RoboHelp 2022"/>
+  <title>Pack files and create CTF file</title>
+  <meta name="topic-status" content="Draft"/>
+  <meta name="template" content="../layouts/Topic.htt"/>
+  <meta http-equiv="Content-Language" content="en-US"/>
+  
+  
+  <meta name="search-keywords" content="How to pack files and create CTF file,Create CTF file using API,Pack function using Cimatron API"/>
+</head>
+
+<body>
+  <div class="topic-header rh-hide" id="rh-topic-header">
+    <div class="logo">
+    </div>
+    <div class="nav">
+      <div class="title" title="API Documentation">
+        <span>API Documentation</span>
+      </div>
+      <div class="gotohome" title="Click here to see this page in full context">
+        <a href="#" onclick="rh._.goToFullLayout()">Click here to see this page in full context</a>
+      </div>
+    </div>
+  </div>
+  <div class="topic-header-shadow rh-hide" id="rh-topic-header-shadow"></div>
+
+
+
+  <div>Â </div>
+  <div>
+  <h1>Pack files and create a CTF file</h1>
+  <p>A CTF file is a Zip-like format for <span data-keyref="Product_Name"><span>Cimatron</span></span> files, containing compressed files, data, and path information. A CTF file can be used for backup purposes or for sending information to other users.</p>
+  <p>A CTF file is the best method for compressing <span data-keyref="Product_Name"><span>Cimatron</span></span> files as only the relevant files in a folder are compressed. For example, when creating a CTF file of an assembly, only those files in the folder that are used in the assembly are automatically compressed and included in the CTF file; all other files in the folder that are not used in the assembly are not included in the CTF file. Hence, the CTF file contains all the associated files.</p>
+  <p>To create a CTF file by adding files, first add reference to <em>interop.cimpack.dll</em> in your project. This DLL is present in the <span data-keyref="Product_Name"><span>Cimatron</span></span> installation directory.Â </p>
+  <h2>Example</h2>
+  <div class="propCodeButtons">
+    <p class="codesample">/*<br/>
+      Â  Â  Â  Â  Â * Add reference of interop.CimPack.dll to your project<br/>
+      Â  Â  Â  Â  */<br/>
+      Â  Â  Â  Â  /*<br/>
+      Â  Â  Â  Â  Â * enum _PACK_OPTION_MASK { PACKOPT_WITHDEP, PACKOPT_ALLLEVELS,<br/>
+      Â  Â  Â  Â  Â * PACKOPT_WITHALIENDATA, PACKOPT_WITH_E_DOCS,<br/>
+      Â  Â  Â  Â  Â * PACKOPT_REPLACE_EXIST, PACKOPT_SILENT,<br/>
+      Â  Â  Â  Â  Â * PACKOPT_CONCURRENCY } PACK_OPTION_MASK;<br/>
+      Â  Â  Â  Â  */<br/>
+      Â  Â  Â  Â  bool aStatus = false;<br/>
+      Â  Â  Â  Â  try<br/>
+      Â  Â  Â  Â  {<br/>
+      Â  Â  Â  Â  Â  Â  interop.CimPack.CimPackage oCimPack = new interop.CimPack.CimPackage();<br/>
+      Â  Â  Â  Â  Â  Â  interop.CimPack._RemotableHandle orh = new interop.CimPack._RemotableHandle();<br/>
+      Â  Â  Â  Â  Â  Â  oCimPack.Create(sFilePath, ref orh);<br/>
+      Â  Â  Â  Â  Â  Â  interop.CimPack._PACK_OPTION_MASK PackOpt = interop.CimPack._PACK_OPTION_MASK.PACKOPT_WITHDEP | interop.CimPack._PACK_OPTION_MASK.PACKOPT_ALLLEVELS | interop.CimPack._PACK_OPTION_MASK.PACKOPT_WITHALIENDATA;<br/>
+      Â  Â  Â  Â  Â  Â  // File to pack<br/>
+      Â  Â  Â  Â  Â  Â  oCimPack.AddDocument2(&quot;L:\\2024.elt&quot;, (int)PackOpt);<br/>
+      Â  Â  Â  Â  Â  Â  oCimPack.AddDocument2(&quot;L:\\2024 - Copy.elt&quot;, (int)PackOpt);<br/>
+      Â  Â  Â  Â  Â  Â  oCimPack.Save();<br/>
+      Â  Â  Â  Â  Â  Â  oCimPack.Close();<br/>
+      Â  Â  Â  Â  Â  Â  aStatus = true;<br/>
+      Â  Â  Â  Â  catch (Exception ex)<br/>
+      Â  Â  Â  Â  {<br/>
+      Â  Â  Â  Â  Â  Â  aStatus = false;<br/>
+      Â  Â  Â  Â  }</p>
+  </div>
+
+</div>
+  <div>
+    <figure style="text-align:end;"><img src="logo_cimatron_logo_tm_3d_systems_small.png"/></figure>
+    
+  </div>
+
+</body></html>

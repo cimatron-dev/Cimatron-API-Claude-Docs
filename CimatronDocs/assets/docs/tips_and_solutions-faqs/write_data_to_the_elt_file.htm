@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+
+  <meta name="gRootRelPath" content="../../.."/>
+	<meta name="gCommonRootRelPath" content="../../.."/>
+  <meta name="gTopicId" content="1.4.1.1.0_1"/>
+  <script type="text/javascript" src="../../../template/scripts/rh.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/common.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/topic.min.js"></script>
+  <script type="text/javascript" src="../../../template/scripts/topicwidgets.min.js"></script>
+<script type="text/javascript" src="../../../whxdata/projectsettings.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../template/styles/topic.min.css"/>
+  <link rel="stylesheet" type="text/css" href="../../../template/cimatron/topicheader.css"/>
+  <meta name="topic-status" content="Draft"/>
+<link rel="stylesheet" type="text/css" href="../../css/cimatrone_help.css"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="generator" content="Adobe RoboHelp 2022"/>
+  <title>Write Data to the ELT File</title>
+  <meta name="topic-status" content="Draft"/>
+  
+  <meta name="condition-tags" content="Platform:2024"/>
+</head>
+
+<body>
+  <div class="topic-header rh-hide" id="rh-topic-header">
+    <div class="logo">
+    </div>
+    <div class="nav">
+      <div class="title" title="API Documentation">
+        <span>API Documentation</span>
+      </div>
+      <div class="gotohome" title="Click here to see this page in full context">
+        <a href="#" onclick="rh._.goToFullLayout()">Click here to see this page in full context</a>
+      </div>
+    </div>
+  </div>
+  <div class="topic-header-shadow rh-hide" id="rh-topic-header-shadow"></div>
+
+
+
+  <div>Â </div>
+  <div>
+  <h1>Write Data to the ELT File</h1>
+  <table border="0" style="border-collapse:collapse; width:100%">
+    <colgroup>
+      <col style="width:50%"/>
+      <col style="width:50%"/>
+    </colgroup>
+    <tbody>
+      <tr>
+        <td style="vertical-align: top">
+          <p>The developer must understand the ELT file structure before creating this process. An ELT file is essentially a zip file containing multiple files that are crucial for opening a <span data-keyref="Product_Name"><span>Cimatron</span></span> document.Â </p>
+          <p>To write data into an ELT file, developers must perform the following steps:</p>
+          <ol>
+            <li>
+              <p>Attach a Hook to <span data-keyref="Product_Name"><span>Cimatron</span></span><br/>
+                Utilize the <span data-keyref="Product_Name"><span>Cimatron</span></span> API to attach a hookâThis will enable notifications before and after a file is saved, as well as when a document is closed.</p>
+            </li>
+            <li>
+              <p>Use IPdmHooks::AfterCloseDocument:<br/>
+                The <a href="../cimatron_e_api/elite_api_interfaces/ipdmhooks/ipdmhooks_afterclosedocument.htm">AfterCloseDocument</a> function is triggered after the document is closedâThis is the point at which users can write their own data into the ELT file.<br/>
+                Before adding data, users must be familiar with the ELT File Structure.</p>
+            </li>
+            <li>
+              <p>Add Data to the ELT File:<br/>
+                When the <a href="../cimatron_e_api/elite_api_interfaces/ipdmhooks/ipdmhooks_afterclosedocument.htm">AfterCloseDocument</a> function is called, users should open the ELT file as a zip fileâUsers can then add their own files to the ELT file.</p>
+            </li>
+          </ol>
+          <p>The workflow diagram on the right outlines this process:</p>
+        </td>
+        <td>
+          <p style="padding-left: 20px"><img align="" src="../../images/adddatatoeltfiles.png"/></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+  <div>
+    <figure style="text-align:end;"><img src="../../images/logo_cimatron_logo_tm_3d_systems_small.png"/></figure>
+    
+  </div>
+
+</body></html>

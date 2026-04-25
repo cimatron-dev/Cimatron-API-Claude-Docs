@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+
+  <meta name="gRootRelPath" content="../../../.."/>
+	<meta name="gCommonRootRelPath" content="../../../.."/>
+  <meta name="gTopicId" content="1.5.1.0_2"/>
+  <script type="text/javascript" src="../../../../template/scripts/rh.min.js"></script>
+  <script type="text/javascript" src="../../../../template/scripts/common.min.js"></script>
+  <script type="text/javascript" src="../../../../template/scripts/topic.min.js"></script>
+  <script type="text/javascript" src="../../../../template/scripts/topicwidgets.min.js"></script>
+<script type="text/javascript" src="../../../../whxdata/projectsettings.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../../template/styles/topic.min.css"/>
+  <link rel="stylesheet" type="text/css" href="../../../../template/cimatron/topicheader.css"/>
+  <meta name="topic-status" content="Draft"/>
+<link rel="stylesheet" type="text/css" href="../../../css/cimatrone_help.css"/>
+  <meta charset="UTF-8"/>
+  <title>New Features</title>
+  <meta name="generator" content="Adobe RoboHelp 2022"/>
+  
+  
+</head>
+
+<body>
+  <div class="topic-header rh-hide" id="rh-topic-header">
+    <div class="logo">
+    </div>
+    <div class="nav">
+      <div class="title" title="API Documentation">
+        <span>API Documentation</span>
+      </div>
+      <div class="gotohome" title="Click here to see this page in full context">
+        <a href="#" onclick="rh._.goToFullLayout()">Click here to see this page in full context</a>
+      </div>
+    </div>
+  </div>
+  <div class="topic-header-shadow rh-hide" id="rh-topic-header-shadow"></div>
+
+
+
+  <div>Â </div>
+  <div>
+  <h1>New Features</h1>
+  <h2>Open GL Connection</h2>
+  <p>To enable custom rendering features within <span data-keyref="Product_Name"><span>Cimatron</span></span>, you can now connect to the <span data-keyref="Product_Name"><span>Cimatron</span></span> rendering library using OpenGL. This integration allows you to access 3D view data and overlay your own graphical content directly within the <span data-keyref="Product_Name"><span>Cimatron</span></span> viewport. It provides a powerful way to visualize custom elements, annotations, or simulations alongside native CAD data.</p>
+  <p>For more, see <a href="../../cimatron_e_api/elite_api_interfaces/iopenglservice/iopenglservice.htm">IOpenGLService</a>.</p>
+  <h2>External Pane Support</h2>
+  <p>Like the Feature Pane or Assembly Pane, it is now possible to add custom external panes within the <span data-keyref="Product_Name"><span>Cimatron</span></span> application. This functionality is especially useful for displaying and managing custom tree structures, data panels, or other UI components tailored to your specific workflow needs.</p>
+  <p>For more, see <a href="../../cimatron_e_api/topic_documents/tools,_commands_and_interaction/iexternalpane/iexternalpane.htm">IExternalPane</a>.</p>
+  <h2>Access to <span data-keyref="Product_Name"><span>Cimatron</span></span> Preferences</h2>
+  <p>The <span data-keyref="Product_Name"><span>Cimatron</span></span> API now provides access to application preferences, enabling you to retrieve settings such as display parameters and other environment configurations. This enhancement supports greater customization and automation based on user-defined or context-specific requirements.</p>
+  <p>For more, seeÂ <a href="../../cimatron_e_api/elite_api_interfaces/ipreference/ipreference.htm">IPreference</a>.</p>
+  <h2>Journaling Support</h2>
+  <p>Journaling is a powerful tool that enables users to automatically generate API code by interacting with the <span data-keyref="Product_Name"><span>Cimatron</span></span> user interface. By recording a sequence of actions, Journaling can produce corresponding <span data-keyref="Product_Name"><span>Cimatron</span></span> API code that replicates those actions using the same inputs or input files. This feature supports code generation in bothÂ C#Â andÂ Python, making it easier to automate workflows and accelerate development.</p>
+  <p>For more, see <a href="../../cimatron_e_api/general/journaling.htm">Journaling</a>.</p>
+  <h2>Set Folder Creation</h2>
+  <p><span data-keyref="Product_Name"><span>Cimatron</span></span> API users can now createÂ Set FoldersÂ programmatically using the API. This enhancement allows for better organization and management of Set data, enabling automated folder creation as part of custom workflows or batch operations.</p>
+  <p>For more, see <a href="../../cimatron_e_api/elite_api_interfaces/isetsfolder/isetsfolder.htm">ISetsFolder</a>.</p>
+  <h2>BOM Data Access in Assembly Environment</h2>
+  <p><span data-keyref="Product_Name"><span>Cimatron</span></span> users can now access theÂ Bill of Materials (BOM)Â dataset directly within the assembly environment through the API. This feature enables developers to retrieve and utilize structured BOM information for tasks such as reporting, validation, and integration with external systems.</p>
+  <p>For more, see <a href="../../cimatron_e_api/elite_api_interfaces/ibom/ibom.htm">IBOM</a>.</p>
+  <h2>NC OMI API â CMM File Support</h2>
+  <p>The NC OMI API now supports importingÂ CMM (Coordinate Measuring Machine)Â files containing point data for measurement procedures. This enhancement enables seamless integration of inspection data into the manufacturing workflow, improving accuracy and automation in quality control processes.</p>
+  <p>For more, see <a href="../../cimatron_e_api/elite_api_interfaces/imeasurementcyclemanager/imeasurementcyclemanager.htm">NC::IMeasurementCycleManager</a>.</p>
+  <h2>Catalog API Support</h2>
+  <p>The <span data-keyref="Product_Name"><span>Cimatron</span></span> API now includes support for working with catalogs through theÂ <a href="../../cimatron_e_api/elite_api_interfaces/icimcatalogtemplate/icimcatalogtemplate.htm">ICimCatalogTemplate</a>Â interface. Developers can load catalog files, extract specific entries, and retrieve metadata such as the number of dimensions defined within a catalog. This enhancement streamlines the process of integrating and managing catalog-based components in automated workflows.</p>
+  <p>For more, see <a href="../../cimatron_e_api/elite_api_interfaces/icimcatalogtemplate/icimcatalogtemplate.htm">CimCatalogTemplate</a>.</p>
+  <h2>Help Integration for API Commands and Dialogs</h2>
+  <p><span data-keyref="Product_Name"><span>Cimatron</span></span> API now supports context-sensitive help integration. Developers can link API commands and custom popup dialogs to specific <span data-keyref="Product_Name"><span>Cimatron</span></span> Help pages, allowing users to pressÂ F1Â and be directed to the exact relevant documentation. This enhancement improves usability and provides immediate guidance within custom tools and interfaces.</p>
+
+</div>
+  <div>
+    <figure style="text-align:end;"><img src="../../../images/logo_cimatron_logo_tm_3d_systems_small.png"/></figure>
+    
+  </div>
+
+</body></html>
