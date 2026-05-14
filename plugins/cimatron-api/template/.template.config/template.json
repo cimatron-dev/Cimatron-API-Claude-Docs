@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Cimatron Post",
+  "classifications": [ "Cimatron", "Plugin", "Desktop" ],
+  "name": "Cimatron 2026 API Plugin",
+  "identity": "Cimatron.Api.Plugin.Template",
+  "shortName": "cimatron-api",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "ApiName",
+  "preferNameDirectory": true,
+  "symbols": {
+    "menuPath": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "APIs\\n<ApiName>",
+      "replaces": "__MENU_PATH__",
+      "description": "Toolbar/menu path shown in Cimatron. Use \\n to separate menu and submenu."
+    },
+    "cimatronRoot": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "C:\\Program Files\\Cimatron\\Cimatron\\2026.0\\Program\\",
+      "replaces": "__CIMATRON_ROOT__",
+      "description": "Cimatron Program folder. The plugin DLL builds straight into this folder; launch.json points at CimatronE.exe here."
+    },
+    "cimatronRootForward": {
+      "type": "generated",
+      "generator": "regex",
+      "dataType": "string",
+      "replaces": "__CIMATRON_ROOT_FORWARD__",
+      "parameters": {
+        "source": "cimatronRoot",
+        "steps": [
+          { "regex": "\\\\", "replacement": "/" }
+        ]
+      }
+    },
+    "projectGuid": {
+      "type": "generated",
+      "generator": "guid",
+      "replaces": "__PROJECT_GUID__",
+      "parameters": { "format": "B" }
+    },
+    "assemblyGuid": {
+      "type": "generated",
+      "generator": "guid",
+      "replaces": "__ASSEMBLY_GUID__",
+      "parameters": { "format": "D" }
+    }
+  },
+  "primaryOutputs": [
+    { "path": "ApiName.csproj" }
+  ]
+}

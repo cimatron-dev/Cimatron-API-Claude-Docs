@@ -1,0 +1,55 @@
+<Project>
+  <ItemGroup>
+    <Reference Include="interop.CimAppAccess">
+      <HintPath>$(CimatronRootPath)interop.CimAppAccess.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="interop.CimatronE">
+      <HintPath>$(CimatronRootPath)interop.CimatronE.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="interop.CimBaseAPI">
+      <HintPath>$(CimatronRootPath)interop.CimBaseAPI.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="interop.CimMdlrAPI">
+      <HintPath>$(CimatronRootPath)interop.CimMdlrAPI.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="CimUIInfrastructure">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(CimatronRootPath)CimUIInfrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="CimWpfContracts">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(CimatronRootPath)CimWpfContracts.dll</HintPath>
+    </Reference>
+    <Reference Include="CommandLineParser">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(CimatronRootPath)CommandLineParser.dll</HintPath>
+    </Reference>
+    <Reference Include="stdole">
+      <HintPath>$(CimatronRootPath)stdole.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <Version>1.2026.0101</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CimatronRootPath>__CIMATRON_ROOT__</CimatronRootPath>
+    <CimatronApiReleasePath>bin\release</CimatronApiReleasePath>
+    <CimatronApiReleaseRegisterForComInterop>false</CimatronApiReleaseRegisterForComInterop>
+    <CimatronApiDebugRegisterForComInterop>false</CimatronApiDebugRegisterForComInterop>
+  </PropertyGroup>
+</Project>

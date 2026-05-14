@@ -1,0 +1,15 @@
+# .NET build output (cimatron-api/template/)
+bin/
+obj/
+
+# Visual Studio scratch
+.vs/
+*.user
+*.suo
+
+# Node.js (defensive — not used in the public tree)
+node_modules/
+
+# OS clutter
+.DS_Store
+Thumbs.db

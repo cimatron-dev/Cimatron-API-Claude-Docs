@@ -1,0 +1,68 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "check-admin",
+            "type": "process",
+            "command": "powershell.exe",
+            "args": [
+                "-NoProfile",
+                "-ExecutionPolicy", "Bypass",
+                "-Command",
+                "$p=[Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent(); if(-not $p.IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')){ Write-Host ''; Write-Host '================================================================' -ForegroundColor Red; Write-Host ' ERROR: VS Code is NOT running as Administrator.' -ForegroundColor Red; Write-Host '================================================================' -ForegroundColor Red; Write-Host ''; Write-Host ' This project writes its build output into the Cimatron Program' -ForegroundColor Red; Write-Host ' folder, which requires elevated privileges. Also make sure' -ForegroundColor Red; Write-Host ' Cimatron is closed so the previous DLL is not locked.' -ForegroundColor Red; Write-Host ''; Write-Host ' To restart VS Code as Administrator:' -ForegroundColor Yellow; Write-Host '   1. Close all VS Code windows.' -ForegroundColor Yellow; Write-Host '   2. Right-click the VS Code shortcut and choose Run as administrator.' -ForegroundColor Yellow; Write-Host '   3. Re-open this workspace folder.' -ForegroundColor Yellow; Write-Host ''; exit 1 } else { Write-Host 'Admin check passed.' -ForegroundColor Green }"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "revealProblems": "onProblem",
+                "focus": false,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "build",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/ApiName.csproj",
+                "-p:Platform=x64",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "dependsOn": ["check-admin"],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "clean",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "clean",
+                "${workspaceFolder}/ApiName.csproj",
+                "-p:Platform=x64"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "prelaunch",
+            "dependsOrder": "sequence",
+            "dependsOn": ["build"],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "rebuild",
+            "dependsOrder": "sequence",
+            "dependsOn": ["clean", "build"],
+            "problemMatcher": []
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "cimatron-claude",
+  "owner": { "name": "Cimatron Post" },
+  "plugins": [
+    {
+      "name": "cimatron-api",
+      "description": "Cimatron API for Claude Code: doc search via the hosted MCP server, plugin scaffolding, in-place plugin editing, and a live modeling agent that drives CadCimAiShell.exe.",
+      "version": "2.0.0",
+      "source": "./plugins/cimatron-api"
+    }
+  ]
+}

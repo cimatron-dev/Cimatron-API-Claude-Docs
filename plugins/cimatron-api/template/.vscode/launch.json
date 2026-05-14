@@ -1,0 +1,31 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Cimatron (ApiName plugin)",
+            "type": "clr",
+            "request": "launch",
+            "preLaunchTask": "prelaunch",
+            "program": "__CIMATRON_ROOT_FORWARD__CimatronE.exe",
+            "args": [],
+            "cwd": "__CIMATRON_ROOT_FORWARD__",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "justMyCode": false
+        },
+        {
+            "name": "Attach to running Cimatron",
+            "type": "clr",
+            "request": "attach",
+            "processName": "CimatronE.exe",
+            "justMyCode": false
+        },
+        {
+            "name": "Build only",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "echo Build complete.",
+            "preLaunchTask": "prelaunch"
+        }
+    ]
+}
