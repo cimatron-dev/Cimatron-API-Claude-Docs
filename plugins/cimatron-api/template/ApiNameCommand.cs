@@ -9,7 +9,16 @@ namespace ApiName
         public bool OnCommand()
         {
             Logger.LogInfo("ApiName command invoked.");
-            // TODO: implement the command behavior.
+
+            // Standard entry-point: grab the running Cimatron app and its
+            // active document. Cast at the boundary — interop returns the
+            // generic IUnknown-shaped type.
+            interop.CimServicesAPI.CimApplicationProvider AppProvider = new interop.CimServicesAPI.CimApplicationProvider();
+            var app = (interop.CimatronE.IApplication)AppProvider.GetApplication();
+            var doc = (interop.CimBaseAPI.ICimDocument)app.GetActiveDoc();
+
+            // TODO: implement the command behavior. `app` and `doc` are
+            // your handles into Cimatron.
             return true;
         }
 

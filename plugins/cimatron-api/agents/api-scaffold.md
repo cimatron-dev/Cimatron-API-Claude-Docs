@@ -121,7 +121,13 @@ namespace <RootNamespace>
             Logger.LogInfo("<CommandName> started");
             try
             {
-                // TODO: command body
+                // Standard entry-point: get the running Cimatron app and
+                // its active document. Cast at the interop boundary.
+                interop.CimServicesAPI.CimApplicationProvider AppProvider = new interop.CimServicesAPI.CimApplicationProvider();
+                var app = (interop.CimatronE.IApplication)AppProvider.GetApplication();
+                var doc = (interop.CimBaseAPI.ICimDocument)app.GetActiveDoc();
+
+                // TODO: command body. `app` and `doc` are your Cimatron handles.
                 return true;
             }
             catch (Exception ex)
@@ -169,7 +175,13 @@ namespace <RootNamespace>
             Logger.LogInfo("<CommandName> started");
             try
             {
-                // TODO: command body
+                // Standard entry-point: get the running Cimatron app and
+                // its active document. Cast at the interop boundary.
+                interop.CimServicesAPI.CimApplicationProvider AppProvider = new interop.CimServicesAPI.CimApplicationProvider();
+                var app = (interop.CimatronE.IApplication)AppProvider.GetApplication();
+                var doc = (interop.CimBaseAPI.ICimDocument)app.GetActiveDoc();
+
+                // TODO: command body. `app` and `doc` are your Cimatron handles.
             }
             catch (Exception ex) { Logger.LogException(ex, "<CommandName> failed"); }
             finally { Logger.LogInfo("<CommandName> finished"); }

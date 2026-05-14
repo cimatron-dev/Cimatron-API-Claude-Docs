@@ -23,8 +23,20 @@
       "type": "parameter",
       "datatype": "string",
       "defaultValue": "C:\\Program Files\\Cimatron\\Cimatron\\2026.0\\Program",
-      "replaces": "__CIMATRON_ROOT__",
       "description": "Cimatron Program folder. The plugin DLL builds straight into this folder; launch.json points at CimatronE.exe here."
+    },
+    "cimatronRootClean": {
+      "type": "generated",
+      "generator": "regex",
+      "dataType": "string",
+      "replaces": "__CIMATRON_ROOT__",
+      "parameters": {
+        "source": "cimatronRoot",
+        "steps": [
+          { "regex": "\"$", "replacement": "" },
+          { "regex": "[\\\\/]+$", "replacement": "" }
+        ]
+      }
     },
     "cimatronRootForward": {
       "type": "generated",
@@ -34,6 +46,8 @@
       "parameters": {
         "source": "cimatronRoot",
         "steps": [
+          { "regex": "\"$", "replacement": "" },
+          { "regex": "[\\\\/]+$", "replacement": "" },
           { "regex": "\\\\", "replacement": "/" }
         ]
       }
