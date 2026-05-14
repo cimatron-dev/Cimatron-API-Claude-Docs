@@ -22,7 +22,7 @@
     "cimatronRoot": {
       "type": "parameter",
       "datatype": "string",
-      "defaultValue": "C:\\Program Files\\Cimatron\\Cimatron\\2026.0\\Program\\",
+      "defaultValue": "C:\\Program Files\\Cimatron\\Cimatron\\2026.0\\Program",
       "replaces": "__CIMATRON_ROOT__",
       "description": "Cimatron Program folder. The plugin DLL builds straight into this folder; launch.json points at CimatronE.exe here."
     },

@@ -1,7 +1,7 @@
 {
   "name": "cimatron-api",
   "version": "2.0.0",
-  "description": "Cimatron API for Claude Code: doc search via the hosted MCP server, plugin scaffolding (new-cimatron-api), in-place plugin editing (add-command, register-command, unregister-command), and a live modeling agent that drives CadCimAiShell.exe.",
+  "description": "Cimatron API for Claude Code: doc search via the hosted MCP server, plugin scaffolding (new-cimatron-api), and in-place plugin editing (add-command, register-command, unregister-command).",
   "author": { "name": "Cimatron Post" },
   "homepage": "https://github.com/Cimatron-Post/Cimatron-API-Claude-Docs",
   "repository": "https://github.com/Cimatron-Post/Cimatron-API-Claude-Docs",

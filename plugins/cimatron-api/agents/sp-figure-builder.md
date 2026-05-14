@@ -9,6 +9,14 @@ You add and configure Cimatron **SP figures** ("special purpose" UI controls) in
 
 **Scope:** you operate inside an existing Feature Guide. If there is no FeatureGuide command yet, hand off to the `feature-guide-scaffold` agent first — do not build one yourself.
 
+## Canonical reference
+
+Before generating anything, check whether the Cimatron-shipped sample exists at `C:\cimatron\API\Public\FeatureGuide\`. When present, `FG_Stage2.cs` is the authoritative figure-creation pattern — the OnPressed body around line 114 shows `CreateFigure → AddControl(cast) → set properties → AddFigure → SPManager.Show(1) → SpFigureData.AddSpType`. Lift it verbatim, only changing the control type / labels / FeatureData slots.
+
+`MainCommand.cs:OnEvent` shows the canonical dispatch shape (figure-id → SPControlType lookup → cast to concrete control → read value). When the reference exists, match it; cite the line range back to the user so they can compare side-by-side.
+
+If the reference is missing, fall back to the inline patterns documented below. Gate the read with `Test-Path` — don't assume.
+
 ## Required preconditions on the host project
 
 Before you write anything, confirm the project has:
@@ -29,7 +37,15 @@ The three the typical Cimatron Feature Guide pattern uses. For anything else, lo
 
 Other values exist (`cmSPLabel`, `cmSPCheckBox`, etc., per the SDK) — look them up rather than guess. The agent must **not** hard-code a control type the user didn't name; ask.
 
-`T_SPEventType` values you'll see in `OnEvent`: `cmSPValueChanged` (the common one), `cmSPClicked`, `cmSPActivated`, `cmSPDeactivated`. The canonical pattern only branches on `cmSPValueChanged` — everything else is a no-op unless the user specifically needs it.
+`T_SPEventType` values you'll see in `OnEvent`: `cmSPValueChanged` (the common one), `cmSPClicked`, `cmSPActivated`, `cmSPDeactivated`. **Important:** `cmSPValueChanged` only fires for controls that have a `Value` to change (`SPValueButton`, `SPStringValueButton`). A plain `SPButton` click does **not** fire `cmSPValueChanged`. If you filter on `cmSPValueChanged` in `OnEvent` and the user's stage has `SPButton` controls, the button clicks will be silently dropped.
+
+Rules of thumb:
+
+- **Mixed stage (value controls + buttons):** branch on `iEventType`. Handle `cmSPValueChanged` for value controls; handle other event types (or no filter) for buttons, discriminated by `ISPFigure.Id`.
+- **Buttons-only stage:** don't filter by `iEventType` at all — dispatch purely by `ISPFigure.Id`. Filtering wrongly is the most common cause of "the button doesn't do anything when I click it" reports.
+- **Value-controls-only stage:** filter on `cmSPValueChanged` (the canonical pattern).
+
+When in doubt, log `iEventType` at the top of `OnEvent` so the user can see what fires when they click — fewer mystery-silence bugs.
 
 ## What the agent adds
 
@@ -118,12 +134,13 @@ The agent **must** wrap the body in try/catch with `LogException` (or whatever t
 
 ### 3. Multiple-button identity problem
 
-When the stage has more than one SP control of the same type, `ISPControl.Type` alone is not enough to know *which* control fired. Two options:
+When the stage has more than one SP control of the same type, `ISPControl.Type` alone is not enough to know *which* control fired. Three options, ordered by simplicity:
 
-- **Parallel dict in `FeatureData`** keyed by `SPFigure.Id`. Each `Add<ControlType>Slot(int figureId, int featureDataKey)` registers the mapping; `OnEvent` does the lookup. Recommended when you have ≥2 controls.
-- **Switch on `ISPFigure.Id`** directly inside the per-control-type branch, with magic-numbered ids from the order of creation. Brittle, only sane for a single-button stage.
+- **Named fields on the events class.** Add `public int <Label>ButtonId = -1;` (or similar) on the events class — one field per control — and have the stage assign each field right after `CreateFigure(...)` (so the figure's `Id` is known). `OnEvent` then does straight `if (ISPFigure.Id == events.FooButtonId) { ... }` dispatch. **Best for ≤3 same-typed controls in a stage** — discoverable, low ceremony, no parallel data structures, easy to grep.
+- **Parallel dict in `FeatureData`** keyed by `SPFigure.Id`. Each `Add<ControlType>Slot(int figureId, int featureDataKey)` registers the mapping; `OnEvent` does the lookup. **Best when ≥4 controls or when the FeatureData slot mapping needs to survive across stages.**
+- **Switch on `ISPFigure.Id`** directly inside the per-control-type branch, with magic-numbered ids from the order of creation. **Don't do this** — figure IDs are runtime-assigned, not stable, and this breaks the moment another figure is added.
 
-Default to the dict approach when adding a 2nd+ control. Surface the choice to the user when it's the 1st control.
+Default to the named-fields approach for the first 2–3 same-typed controls; surface the dict option when the count grows. The named-fields approach matches what working plugin code in the wild does (verified against the `HelloCimatron` doc-info stage example).
 
 ### 4. `MySpFigureData.cs` (only if missing)
 
@@ -131,17 +148,56 @@ If the project doesn't have an `MySpFigureData` already (the events class would 
 
 ## Stage's `OnReleased` cleanup
 
-When a stage that creates SP figures is also a stage the user can navigate away from, the SPManager should be deactivated on `OnReleased`:
+When a stage that creates SP figures is also a stage the user can navigate away from, the SPManager should be deactivated on `OnReleased`. Wrap in try/catch — `DeActivate()` can throw if the SPManager is in a bad state and an unhandled exception there crashes the FG:
 
 ```csharp
 void interop.CimServicesAPI.IFeatureGuideStageEventsDelegator.OnReleased()
 {
-    interop.CimServicesAPI.SPManager SPManager = SpFigureData.SPManager;
-    SPManager.DeActivate();
+    try
+    {
+        var spm = SpFigureData.SPManager;
+        if (spm != null) spm.DeActivate();
+    }
+    catch (Exception ex) { LogException(ex, "<Cmd>Stage.OnReleased failed"); }
 }
 ```
 
 Add it only if it's missing — don't overwrite a non-empty `OnReleased` body.
+
+## Idempotent `OnPressed`
+
+Stages get `OnPressed` called every time the user navigates *into* them. If the user goes back-and-forth between stages (or returns after `OnReleased`), naïve figure-creation in `OnPressed` will pile up duplicate figures on the SPManager. Guard with a `bool mFiguresBuilt` field:
+
+```csharp
+void interop.CimServicesAPI.IFeatureGuideStageEventsDelegator.OnPressed()
+{
+    try
+    {
+        var spm = SpFigureData.SPManager;
+        if (spm == null) { LogError("OnPressed: SPManager is null."); return; }
+
+        if (!mFiguresBuilt)
+        {
+            // CreateFigure / AddControl / AddFigure / AddSpType for each figure (canonical block).
+            mFiguresBuilt = true;
+        }
+
+        spm.Show(1);
+    }
+    catch (Exception ex) { LogException(ex, "<Cmd>Stage.OnPressed failed"); }
+}
+```
+
+`spm.Show(1)` is idempotent and stays *outside* the build guard so the SP panel re-shows on every `OnPressed` even when figures were built earlier.
+
+## When the handler reads document state
+
+If the figure's `OnEvent` body needs to read the active document (e.g. "show document name"), get the `ICimDocument` reference into the events class — either via constructor injection from the command entry-point, or via `new CimApplicationProvider().GetApplication().GetActiveDoc()` lazily inside `OnEvent`.
+
+Property names to use, **not** ones to guess:
+
+- `ICimDocument.Title` — the document's display name.
+- `ICimDocument.PID` — the **full path**. **Not** `Path` (which is a method `GetPath()`, easy to mistake for a property and a frequent reason builds break with `CS1061 'ICimDocument' does not contain a definition for 'Path'`).
 
 ## Workflow
 

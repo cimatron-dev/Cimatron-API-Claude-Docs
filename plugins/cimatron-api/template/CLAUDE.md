@@ -81,5 +81,6 @@ Cimatron interop quirks (the namespace overlap above, embedded COM types, COM `I
 ## Build/deploy quirks worth knowing
 
 - `OutputPath` is `$(CimatronRootPath)` — the DLL drops straight into `Program Files`. VSCode must be elevated, and `CimatronE.exe` must be closed, or the build fails with "access denied" or "file locked".
+- `CimatronRootPath` is normalized at the top of `Directory.Build.props` (`TrimEnd('"')` + `EnsureTrailingSlash`). Don't remove that normalization — it absorbs the PowerShell `\"` escape pitfall when the scaffolder passes a quoted path with a trailing backslash, and means downstream `$(CimatronRootPath)file.dll` references work whether the user pasted the path with or without a trailing `\`.
 - All `interop.*` references use `EmbedInteropTypes=True`. Don't disable that — it's how the plugin avoids shipping the Cimatron COM PIAs.
 - `LangVersion` is pinned to `7.3` because of net48. Don't use `using` declarations, target-typed `new`, `record`, pattern-matching switch expressions, or other C# 8+ features — they won't compile.

@@ -48,6 +48,13 @@
 
   <PropertyGroup>
     <CimatronRootPath>__CIMATRON_ROOT__</CimatronRootPath>
+    <!-- Normalize the path before any HintPath uses it.
+         - TrimEnd('"') strips a stray closing quote that PowerShell can leave behind
+           when a caller passes `"...\Program\"` (the trailing \" parses as an escaped
+           quote, dropping the backslash). The scaffolder hit exactly this bug.
+         - EnsureTrailingSlash guarantees `$(CimatronRootPath)file.dll` concatenates
+           cleanly regardless of whether the caller included a trailing backslash. -->
+    <CimatronRootPath>$([MSBuild]::EnsureTrailingSlash($(CimatronRootPath.TrimEnd('"'))))</CimatronRootPath>
     <CimatronApiReleasePath>bin\release</CimatronApiReleasePath>
     <CimatronApiReleaseRegisterForComInterop>false</CimatronApiReleaseRegisterForComInterop>
     <CimatronApiDebugRegisterForComInterop>false</CimatronApiDebugRegisterForComInterop>

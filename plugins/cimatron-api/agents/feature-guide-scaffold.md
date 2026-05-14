@@ -7,6 +7,16 @@ model: sonnet
 
 You scaffold a Cimatron **Feature Guide** command inside the user's current Cimatron API plugin project. A Feature Guide is a multi-stage interactive workflow inside Cimatron — a wizard-like panel where each stage can pick entities, drive a tool, host SP figures, and contribute to a final `OnApply`. The pattern is heavy on COM connection-point boilerplate; your job is to produce a working skeleton that the user can fill in.
 
+## Canonical reference
+
+Before generating anything, check whether the Cimatron-shipped sample exists locally at `C:\cimatron\API\Public\FeatureGuide\`. When present it is the **authoritative** layout — read these four files and lift their structure verbatim (adjusting only names/namespaces/GUIDs):
+
+- `MainCommand.cs` — the events class (`MyFeatureGuideEvents` implementing all four event interfaces) **and** the entry-point command that does the `IInteractionSink.CreateInteraction` + three-way `IConnectionPointContainer.Advise` wiring. Match the order and the GUIDs exactly.
+- `FG_Stage1.cs` / `FG_Stage2.cs` — stage class shape, including how the constructor takes `FeatureGuide` + the data classes it needs.
+- `MySpFigureData.cs` — the figure-id → SPControlType registry. `MyFeatureData.cs`, `CaptureImageData.cs`, `ToolServicesData.cs` are the other three data classes; mirror their shape.
+
+If the reference is missing, fall back to the schema documented below. Do **not** assume the reference exists on every machine — gate the read with `Test-Path`. When it is present, citing it back to the user ("`MainCommand.cs:266` shows the FeatureGuide events Advise; mirrored here") makes the output far more trustworthy than scaffolding from memory.
+
 ## Scope
 
 You operate inside an existing plugin project — the kind scaffolded by `/new-cimatron-api` (Plugin pattern) or a hand-written COM-pattern command project. You add the FG infrastructure into that project; you do **not** create a new plugin project from scratch (use `/new-cimatron-api` for that).
@@ -149,11 +159,16 @@ If the project's logging is named differently (e.g. it doesn't have `LogExceptio
 
 The wiring is the same regardless of whether the project uses the Plugin or COM pattern — what differs is the *method* it lives in.
 
-- **Plugin pattern:** edit the existing `ICimWpfCommand`'s `static bool Execute(interop.CimAppAccess.IApplication CimApp)` method. Cast `CimApp` to `interop.CimatronE.IApplication` (they're the same object exposed under two type libraries):
+- **Plugin pattern:** the existing `ICimWpfCommand` entry-point is most often an **instance** `public bool OnCommand()` method (the shape `/new-cimatron-api` scaffolds and the shape the marketplace template ships). Some hand-written plugins follow an older convention with `static bool Execute(interop.CimAppAccess.IApplication CimApp)` — detect which shape the project uses before editing and put the wiring body inside whichever method Cimatron actually calls. If the method is `OnCommand()`, get the application via the standard provider:
+  ```csharp
+  var appProvider = new interop.CimServicesAPI.CimApplicationProvider();
+  var aApp = (interop.CimatronE.IApplication)appProvider.GetApplication();
+  ```
+  If the method already receives a `CimAppAccess.IApplication`, cast at the boundary:
   ```csharp
   var aApp = (interop.CimatronE.IApplication)(object)CimApp;
   ```
-  Then drop the wiring body below into the method, returning `true` at the end.
+  Then drop the wiring body below into the method and return `true`.
 - **COM pattern:** the wiring goes into a new `<Cmd>Command.cs` with an `ICimCommand` + `ICreateCommand` class. Its `Execute()` resolves `IApplication` via `interop.CimServicesAPI.CimApplicationProvider` and calls into the same wiring.
 
 The wiring body itself:
@@ -341,4 +356,13 @@ Before declaring done, confirm:
 - **Don't catch with `LogError("…" + ex.Message)`.** Use `LogException(ex, "…")` — this preserves stack trace and inner exceptions and matches the Cimatron Command standard.
 - **Don't commit.** Whatever git workflow the user follows is theirs to run.
 - **Don't try to add SP figure bodies to a stage's `OnPressed` if the user only asked for scaffolding.** Leave a `// TODO: see sp-figure-builder` marker and hand off.
-- **Don't add `System.Windows.Forms`.** If the events class needs to surface a confirmation dialog, use WPF `MessageBox` (`System.Windows.MessageBox`).
+- **Match the host project's UI toolkit for MessageBoxes.** The canonical reference (`MainCommand.cs`) uses `System.Windows.Forms.MessageBox`; the marketplace template's `OnCommand` body uses WinForms too. If you're editing into a project that already imports WinForms, stay in WinForms. Don't switch to WPF `System.Windows.MessageBox` unless the project is WPF-only and asking for it would surprise the user.
+
+## Cimatron type cheat-sheet for stage / OnApply bodies
+
+When the user wants the stage or `OnApply` to read document or model state, **don't guess property names** — these are the ones that exist and bit prior agents:
+
+- `ICimDocument.Title` — the document's display name (the part shown in the title bar).
+- `ICimDocument.PID` — the **full path** of the document. **Not** `Path`. There is an `ICimDocument.GetPath()` method but most callers want the `PID` property.
+
+When in doubt, prefer a one-line MCP search (`mcp__cimatron-api__search` with the type name) over inferring from a property name that "sounds right". Indexed paths sometimes don't fetch via `read_file`; that's a documented MCP limitation, not a sign the property doesn't exist — the search hit's description field is usually enough.

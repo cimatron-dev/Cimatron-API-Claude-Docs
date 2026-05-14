@@ -1,6 +1,6 @@
 ---
 description: Scaffold a new Cimatron 2026 API plugin in the current folder with VSCode F5 wired up to build, deploy, launch Cimatron, and attach the managed debugger.
-argument-hint: <ApiName> [--menu "<Toolbar Menu Path>"] [--cimatron-root "<C:\\Path\\To\\Cimatron\\Program\\>"]
+argument-hint: <ApiName> [--menu "<Toolbar Menu Path>"] [--cimatron-root "<C:\\Path\\To\\Cimatron\\Program>"]
 ---
 
 Scaffold a fresh Cimatron API plugin project alongside the user's current working directory.
@@ -12,7 +12,7 @@ Arguments: $ARGUMENTS
 1. **Parse arguments.**
    - `<ApiName>` is required. Must be a valid C# identifier: starts with a letter, contains only letters/digits/underscores. If invalid, stop and tell the user to pick a different name.
    - Default `--menu` to `"APIs\n<ApiName>"` if not provided.
-   - Default `--cimatron-root` to `C:\Program Files\Cimatron\Cimatron\2026.0\Program\` if not provided.
+   - Default `--cimatron-root` to `C:\Program Files\Cimatron\Cimatron\2026.0\Program` if not provided. **Do not include a trailing backslash** — PowerShell parses `\"` inside a quoted arg as an escaped quote, so `"...\Program\"` gets passed to `dotnet new` as `...\Program"` (stray quote, no backslash). The template's `Directory.Build.props` normalizes either form, but the no-trailing-backslash default avoids the trap entirely.
 
 2. **Refuse to overwrite.** Check whether `./<ApiName>` already exists in the current working directory. If it does, stop and tell the user to pick a different name or `rm` the existing folder.
 

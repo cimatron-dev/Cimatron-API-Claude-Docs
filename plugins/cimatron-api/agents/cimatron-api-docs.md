@@ -1,6 +1,6 @@
 ---
 name: cimatron-api-docs
-description: Use whenever the user asks about a Cimatron interface, enum, procedure, geometry type, sample pattern, or "how do I X with the Cimatron API" — e.g. "what does IApplication.GetActiveDoc return?", "what enum values does ECommandCategory have?", "how do I create an extrude procedure?". Drives the cimatron-api MCP server (mcp__cimatron-api__search / read_file / list_index) and answers from official Cimatron docs. Do NOT use for live modeling (use cimatron-modeler) or for editing source code (use the main agent).
+description: Use whenever the user asks about a Cimatron interface, enum, procedure, geometry type, sample pattern, or "how do I X with the Cimatron API" — e.g. "what does IApplication.GetActiveDoc return?", "what enum values does ECommandCategory have?", "how do I create an extrude procedure?". Drives the cimatron-api MCP server (mcp__cimatron-api__search / read_file / list_index) and answers from official Cimatron docs. Do NOT use for editing source code (use the main agent).
 tools: Read, Grep, Glob
 model: sonnet
 ---

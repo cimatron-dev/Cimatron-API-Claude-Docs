@@ -24,7 +24,6 @@ Then restart Claude Code. Verify with `/mcp` — you should see a
 | Scaffold a new Cimatron 2026 API plugin | `/cimatron-api:new-cimatron-api` |
 | Add a toolbar command to an existing plugin | `/cimatron-api:add-command` |
 | Register / unregister a plugin in `ExternalCommands.ini` | `/cimatron-api:register-command`, `/cimatron-api:unregister-command` |
-| Drive Cimatron live (open docs, sketch, extrude, invoke procedures) | `cimatron-modeler` agent (uses `CadCimAiShell.exe --stdio`) |
 | Audit a plugin against the project standard | `api-reviewer` agent |
 | Generate command icons | `icon-creator` agent |
 | Add a feature-guide UI to an existing command | `feature-guide-scaffold` agent |

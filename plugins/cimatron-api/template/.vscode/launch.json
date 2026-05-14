@@ -6,7 +6,7 @@
             "type": "clr",
             "request": "launch",
             "preLaunchTask": "prelaunch",
-            "program": "__CIMATRON_ROOT_FORWARD__CimatronE.exe",
+            "program": "__CIMATRON_ROOT_FORWARD__/CimatronE.exe",
             "args": [],
             "cwd": "__CIMATRON_ROOT_FORWARD__",
             "stopAtEntry": false,
