@@ -1,6 +1,6 @@
 ---
 description: Scaffold a new Cimatron 2026 API plugin in the current folder with VSCode F5 wired up to build, deploy, launch Cimatron, and attach the managed debugger.
-argument-hint: <ApiName> [--menu "<Toolbar Menu Path>"] [--cimatron-root "<C:\\Path\\To\\Cimatron\\Program>"]
+argument-hint: <ApiName> [--menu "<Toolbar Menu Path>"] [--cimatron-root "<C:\\Path\\To\\Cimatron\\Program>"] [--skip-env-check]
 ---
 
 Scaffold a fresh Cimatron API plugin project alongside the user's current working directory.
@@ -12,7 +12,20 @@ Arguments: $ARGUMENTS
 1. **Parse arguments.**
    - `<ApiName>` is required. Must be a valid C# identifier: starts with a letter, contains only letters/digits/underscores. If invalid, stop and tell the user to pick a different name.
    - Default `--menu` to `"APIs\n<ApiName>"` if not provided.
-   - Default `--cimatron-root` to `C:\Program Files\Cimatron\Cimatron\2026.0\Program` if not provided. **Do not include a trailing backslash** — PowerShell parses `\"` inside a quoted arg as an escaped quote, so `"...\Program\"` gets passed to `dotnet new` as `...\Program"` (stray quote, no backslash). The template's `Directory.Build.props` normalizes either form, but the no-trailing-backslash default avoids the trap entirely.
+   - `--cimatron-root` — if **not** provided, leave it empty for now; Step 1.5 below will pick a value from the installed Cimatron versions. If **provided**, use it verbatim and **do not include a trailing backslash** — PowerShell parses `\"` inside a quoted arg as an escaped quote, so `"...\Program\"` gets passed to `dotnet new` as `...\Program"` (stray quote, no backslash). The template's `Directory.Build.props` normalizes either form, but the no-trailing-backslash default avoids the trap entirely.
+   - `--skip-env-check` (optional flag) — skip the prerequisite check in Step 1.5. Use only when the user has already run `/setup-env` and knows their machine is ready, or when running in a noninteractive environment.
+
+1.5. **Run the environment precheck.** Unless `--skip-env-check` was passed, spawn the `cimatron-api:setup-env` agent (with `allow-install: false`) to verify the machine has VSCode, the C# Dev Kit extension, the .NET Framework 4.8 targeting pack, and at least one installed Cimatron ≥ 2024.0. Parse the JSON it returns.
+
+   - **If `allGreen` is `true`:** continue silently.
+   - **If anything other than `cimatron` is missing:** stop and tell the user to run `/setup-env` to install the missing pieces. Print the agent's JSON report so they can see exactly what's missing. Don't try to scaffold against a broken toolchain — the user will hit the same wall at build time.
+   - **If `cimatron` is missing (zero versions found):** stop and tell the user Cimatron isn't installed at the expected root. They need to either install it or pass `--cimatron-root "<path>"` explicitly.
+
+   Then resolve the Cimatron root from the agent's `cimatron.versions` list:
+
+   - **If `--cimatron-root` was passed explicitly:** use it as-is. Skip the version prompt.
+   - **If exactly one Cimatron version is installed:** silently set `--cimatron-root` to `C:\Program Files\Cimatron\Cimatron\<version>\Program` for that version.
+   - **If two or more Cimatron versions are installed:** ask the user which one this project should target. Show them the list newest-first (the order the agent returned) and recommend the newest. Set `--cimatron-root` to `C:\Program Files\Cimatron\Cimatron\<chosenVersion>\Program`. Per-project choice — don't try to persist this answer for future runs.
 
 2. **Refuse to overwrite.** Check whether `./<ApiName>` already exists in the current working directory. If it does, stop and tell the user to pick a different name or `rm` the existing folder.
 
@@ -56,12 +69,14 @@ Arguments: $ARGUMENTS
 
 ## Prerequisites the user must already have
 
-- .NET Framework 4.8 Developer Pack (or .NET SDK with the 4.8 targeting pack)
-- Cimatron 2026 installed at `--cimatron-root`
-- VSCode + the `ms-dotnettools.csdevkit` extension (which brings the `clr` debugger needed to attach to .NET Framework processes)
-- VSCode launched as Administrator (the project's build output path is inside `Program Files`)
+Step 1.5 above already verifies the first four via the `cimatron-api:setup-env` agent and short-circuits the scaffold if any are missing. The list is reproduced here for the record:
 
-If any of those is missing the build/F5 flow will fail. Surface that to the user before they press F5, not after.
+- .NET Framework 4.8 Developer Pack (or .NET SDK with the 4.8 targeting pack)
+- Cimatron ≥ 2024.0 installed at `--cimatron-root` (or under `C:\Program Files\Cimatron\Cimatron\<version>\Program\` if not overridden)
+- VSCode + the `ms-dotnettools.csdevkit` extension (which brings the `clr` debugger needed to attach to .NET Framework processes)
+- VSCode launched as Administrator (the project's build output path is inside `Program Files`) — **not auto-verifiable**, surface to the user before F5.
+
+If any of those is missing, the build/F5 flow will fail. The first three are caught by the precheck; the admin-launch requirement is the one to mention in your final summary so the user doesn't hit it after pressing F5.
 
 ## Failure modes
 

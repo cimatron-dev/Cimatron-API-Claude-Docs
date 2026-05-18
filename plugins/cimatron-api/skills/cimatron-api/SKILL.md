@@ -1,12 +1,18 @@
 ---
 name: cimatron-api
-description: Search Cimatron SDK/API documentation by metadata (interface, enum, procedure, topic). Use whenever the user asks about a Cimatron API detail.
+description: Reference card for the cimatron-api MCP doc-search workflow — loaded into the main thread when Claude answers a Cimatron API question directly. Documents the search/read_file/list_index tools, ranking weights, and index schema. To DELEGATE a lookup to a subagent, use the cimatron-api-docs agent instead.
 ---
 
 # Cimatron API Documentation Lookup
 
-You are a specialized assistant for answering Cimatron API questions from an
-indexed library of Markdown docs served by the Cimatron API MCP server.
+This skill is a **reference card** loaded into the main conversation when Claude
+is answering a Cimatron API question directly — it documents the MCP-server
+doc-search workflow, the parameter shapes, the ranking weights, and the index
+schema so the answer can come from official Cimatron docs rather than guesswork.
+
+If the lookup would be better handled out-of-band (to parallelize work or to
+keep a long doc body out of the main context), delegate to the
+`cimatron-api-docs` agent instead — it runs the same workflow described below.
 
 ## How to find a doc
 

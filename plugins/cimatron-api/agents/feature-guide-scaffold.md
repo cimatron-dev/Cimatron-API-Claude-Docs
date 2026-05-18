@@ -173,73 +173,11 @@ The wiring is the same regardless of whether the project uses the Plugin or COM 
 
 The wiring body itself:
 
-```csharp
-var aDoc = (interop.CimBaseAPI.ICimDocument)aApp.GetActiveDoc();
-var aInteractionSink = (interop.CimBaseAPI.IInteractionSink)aDoc;
-
-// 1) FeatureGuide interaction
-var FeatureGuide = (interop.CimServicesAPI.FeatureGuide)
-    aInteractionSink.CreateInteraction(interop.CimBaseAPI.InteractionType.cmFeatureGuide);
-
-var events = new <Cmd>Events(FeatureGuide, aApp);
-
-// 2) Advise _IFeatureGuideEvents on the FeatureGuide
-AdviseConnectionPoint(FeatureGuide,
-    new Guid("8B17C571-AD38-11D6-A773-000476215633"), events);   // _IFeatureGuideEvents
-
-// 3) SPManager interaction (only when SP=yes)
-var spInteraction = ((interop.CimServicesAPI.IInteractionSink)aInteractionSink)
-    .CreateInteraction(interop.CimServicesAPI.InteractionType.cmSPManager);
-var SPManager = (interop.CimServicesAPI.SPManager)spInteraction;
-events.SpFigureData.SPManager = SPManager;
-AdviseConnectionPoint(SPManager,
-    new Guid("4583B016-72A5-4A99-BF9E-49F22BA6B208"), events);   // _ISPEvents
-
-// 4) ToolServices interaction (only when ToolServices=yes)
-var toolsInteraction = ((interop.CimServicesAPI.IInteractionSink)aInteractionSink)
-    .CreateInteraction(interop.CimServicesAPI.InteractionType.cmToolServices);
-var toolServices = (interop.CimServicesAPI.ToolServices)toolsInteraction;
-events.ToolServicesData.ToolServices = toolServices;
-AdviseConnectionPoint(toolServices,
-    new Guid("DFAAA77F-6379-4EA2-94A0-8B9647B7DC1E"), events);   // _IToolServicesEvents
-
-// 5) Stages
-var stage1 = new FG_Stage1(FeatureGuide, events.FeatureData);
-// var stage2 = new FG_Stage2(FeatureGuide, events.FeatureData, events.SpFigureData, events.ToolServicesData);
-
-FeatureGuide.SetTitle("<short title>");
-FeatureGuide.AddStage(stage1);
-// FeatureGuide.AddStage(stage2);
-FeatureGuide.ShowButton(interop.CimServicesAPI.FeatureGuideButtons.cmFeatureGuidePreviewButton, 0);
-FeatureGuide.Activate();
-FeatureGuide.SetInitStage();
-```
-
-…with the helper, declared once in the entry-point class:
-
-```csharp
-System.Runtime.InteropServices.ComTypes.IConnectionPoint mCnnctPt;
-int mCookie;
-
-void AdviseConnectionPoint(object source, Guid interfaceGuid, object sink)
-{
-    var container = (System.Runtime.InteropServices.ComTypes.IConnectionPointContainer)source;
-    container.FindConnectionPoint(ref interfaceGuid, out mCnnctPt);
-    mCnnctPt.Advise(sink, out mCookie);
-}
-```
+Read `${CLAUDE_PLUGIN_ROOT}/snippets/feature-guide-wiring.md` for the canonical wiring body, the `AdviseConnectionPoint` helper, and the three connection-point GUIDs. Adapt only the names (`<Cmd>Events`, the stage types, the title string); the GUIDs are non-negotiable. Pasting the snippet verbatim is correct.
 
 ### Connection-point GUIDs (do not re-derive)
 
-These three are load-bearing and not in any docs the user can grep. Emit them verbatim with a comment naming the interface:
-
-| Source object | Interface GUID | Comment |
-|---|---|---|
-| `FeatureGuide` | `8B17C571-AD38-11D6-A773-000476215633` | `_IFeatureGuideEvents` |
-| `SPManager` | `4583B016-72A5-4A99-BF9E-49F22BA6B208` | `_ISPEvents` |
-| `ToolServices` | `DFAAA77F-6379-4EA2-94A0-8B9647B7DC1E` | `_IToolServicesEvents` |
-
-`_ICaptureImageEvents` is wired implicitly via the FeatureGuide interaction; no separate Advise needed.
+See `${CLAUDE_PLUGIN_ROOT}/snippets/feature-guide-wiring.md` for the canonical three-row GUID table. These values are load-bearing and not in any docs the user can grep; emit them verbatim from the snippet.
 
 ## Stage classes (`FG_StageN.cs`)
 
