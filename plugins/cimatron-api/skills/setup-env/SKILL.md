@@ -1,6 +1,6 @@
 ---
 name: setup-env
-description: Verify the local environment is ready for Cimatron API plugin development — VSCode, the C# Dev Kit extension, the .NET Framework 4.8 targeting pack, and at least one installed Cimatron 2024.0 or newer. Reports a pass/fail table and offers per-item install for anything missing. Run this before `/new-cimatron-api` on a fresh machine.
+description: Verify the local environment is ready for Cimatron API plugin development — Git, VSCode, the C# Dev Kit extension, the .NET Framework 4.8 targeting pack, and at least one installed Cimatron 2024.0 or newer. Reports a pass/fail table and offers per-item install for anything missing. Run this before `/new-cimatron-api` on a fresh machine.
 argument-hint: [--quiet] [--no-install]
 ---
 
@@ -12,20 +12,35 @@ Arguments: $ARGUMENTS
 
 | # | Prereq | Why it matters |
 |---|---|---|
-| 1 | VSCode (`code` on PATH) | The template's `.vscode/launch.json` and `tasks.json` drive the F5 → build → deploy → attach flow. No VSCode, no F5. |
-| 2 | `ms-dotnettools.csdevkit` extension | Brings the `clr` debugger needed to attach to .NET Framework processes (Cimatron is .NET Framework 4.8 / x64). |
-| 3 | .NET Framework 4.8 targeting pack | The template targets `net48`. Without the targeting pack, `dotnet build` fails with `MSB3644: The reference assemblies for .NETFramework,Version=v4.8 were not found`. |
-| 4 | Cimatron ≥ 2024.0 installed | The plugin DLL is deployed into `<CimatronRoot>\Program\`. The template's `Directory.Build.props` defaults to the latest installed version. |
+| 1 | Git (`git` on PATH) | Claude Code's `/plugin marketplace add` clones the marketplace repo over git. Without `git`, the user can't install the `cimatron-claude` plugins in the first place. |
+| 2 | VSCode (`code` on PATH) | The template's `.vscode/launch.json` and `tasks.json` drive the F5 → build → deploy → attach flow. No VSCode, no F5. |
+| 3 | `ms-dotnettools.csdevkit` extension | Brings the `clr` debugger needed to attach to .NET Framework processes (Cimatron is .NET Framework 4.8 / x64). |
+| 4 | .NET Framework 4.8 targeting pack | The template targets `net48`. Without the targeting pack, `dotnet build` fails with `MSB3644: The reference assemblies for .NETFramework,Version=v4.8 were not found`. |
+| 5 | Cimatron ≥ 2024.0 installed | The plugin DLL is deployed into `<CimatronRoot>\Program\`. The template's `Directory.Build.props` defaults to the latest installed version. |
 
 `--no-install` skips the "offer to install" step and just reports. `--quiet` shrinks the report to the pass/fail table only (no explanatory text). Default is interactive: report, then ask per missing item whether to install.
 
 ## Workflow
 
-### 1. Run the four checks in parallel.
+### 1. Run the five checks in parallel.
 
-Issue all four detection commands as a single batch of `PowerShell` tool calls. Don't ask the user anything yet — gather state first.
+Issue all five detection commands as a single batch of `PowerShell` tool calls. Don't ask the user anything yet — gather state first.
 
-**Check 1 — VSCode on PATH**
+**Check 1 — Git on PATH**
+
+```powershell
+$cmd = Get-Command git -ErrorAction SilentlyContinue
+if ($cmd) {
+    $ver = (& git --version 2>$null)
+    "Git: OK ($ver) at $($cmd.Source)"
+} else {
+    "Git: MISSING"
+}
+```
+
+Git is what Claude Code shells out to when the user runs `/plugin marketplace add <owner>/<repo>` — it clones the marketplace repo into `~/.claude/plugins/`. If `git` isn't on PATH, the marketplace add fails with a confusing error well before this skill ever gets a chance to run. We still check it here so a user who reaches `/setup-env` (e.g. via someone copying the marketplace in by hand, or after a PATH change) gets a clear pass/fail line for it.
+
+**Check 2 — VSCode on PATH**
 
 ```powershell
 $cmd = Get-Command code -ErrorAction SilentlyContinue
@@ -37,7 +52,7 @@ if ($cmd) {
 }
 ```
 
-**Check 2 — C# Dev Kit extension**
+**Check 3 — C# Dev Kit extension**
 
 ```powershell
 $cmd = Get-Command code -ErrorAction SilentlyContinue
@@ -51,7 +66,7 @@ if (-not $cmd) {
 
 `code --list-extensions` is idempotent and fast. Don't try to verify the extension by poking `%USERPROFILE%\.vscode\extensions\` — extension folders carry a version suffix and the layout differs between stable and insiders builds.
 
-**Check 3 — .NET Framework 4.8 targeting pack**
+**Check 4 — .NET Framework 4.8 targeting pack**
 
 The runtime is almost always present on a developer machine; the *targeting pack* (also called the Developer Pack) is what's usually missing. Both must be present.
 
@@ -69,7 +84,7 @@ elseif ($rtOK -and -not $tpOK) { ".NET 4.8 dev pack: MISSING (runtime OK, target
 else                            { ".NET 4.8 dev pack: MISSING (runtime absent)" }
 ```
 
-**Check 4 — Installed Cimatron versions ≥ 2024.0**
+**Check 5 — Installed Cimatron versions ≥ 2024.0**
 
 ```powershell
 $root = 'C:\Program Files\Cimatron\Cimatron'
@@ -101,6 +116,7 @@ Show a compact pass/fail table:
 ```
 Prereq                        Status   Detail
 ----------------------------  -------  ----------------------------------------
+Git                           OK       git version 2.43.0 at C:\Program Files\Git\cmd\git.exe
 VSCode                        OK       1.92.1 at C:\Users\...\Code\bin\code.cmd
 C# Dev Kit (csdevkit)         OK
 .NET Framework 4.8 dev pack   MISSING  runtime OK, targeting pack absent
@@ -116,6 +132,16 @@ After the table, list anything missing as numbered items so the user can refer t
 Ask the user **one combined question** listing every missing item with its install action. Don't ask one question per item — it's noisy and they may want to skip the whole step.
 
 Install actions per item:
+
+#### Git
+
+```powershell
+winget install -e --id Git.Git --silent --accept-package-agreements --accept-source-agreements
+```
+
+Git for Windows installs to `C:\Program Files\Git` and adds `git` to the **machine** PATH. The **current PowerShell session won't see it** until restart — tell the user to open a new shell before re-running `/setup-env` (or before re-trying `/plugin marketplace add`).
+
+If `winget` itself isn't on the machine, fall back to printing the direct link: `https://git-scm.com/download/win`.
 
 #### VSCode
 

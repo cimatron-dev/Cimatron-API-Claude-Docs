@@ -1,6 +1,6 @@
 ---
 name: setup-env
-description: Use as a precheck before scaffolding a Cimatron API plugin — verifies VSCode + `ms-dotnettools.csdevkit`, the .NET Framework 4.8 targeting pack, and at least one installed Cimatron >= 2024.0, then returns a structured pass/fail report plus the list of available Cimatron versions newest-first. Read-only by default (won't install anything unless the caller explicitly asks). The `/setup-env` slash command is the user-facing form; this agent is the programmatic form that callers like `/new-cimatron-api` invoke.
+description: Use as a precheck before scaffolding a Cimatron API plugin — verifies Git, VSCode + `ms-dotnettools.csdevkit`, the .NET Framework 4.8 targeting pack, and at least one installed Cimatron >= 2024.0, then returns a structured pass/fail report plus the list of available Cimatron versions newest-first. Read-only by default (won't install anything unless the caller explicitly asks). The `/setup-env` slash command is the user-facing form; this agent is the programmatic form that callers like `/new-cimatron-api` invoke.
 tools: PowerShell, Bash, Read, Glob
 model: sonnet
 ---
@@ -18,12 +18,13 @@ If neither input is supplied, run with defaults and don't install anything.
 
 ## Workflow
 
-1. **Run the four detection PowerShell blocks in `SKILL.md` Step 1 in parallel.** Issue them as a single batch of `PowerShell` tool calls. Don't narrate intermediate results.
+1. **Run the five detection PowerShell blocks in `SKILL.md` Step 1 in parallel.** Issue them as a single batch of `PowerShell` tool calls. Don't narrate intermediate results.
 
 2. **Build the structured report.** Return it as a fenced JSON block so the caller can parse it without ambiguity:
 
    ```json
    {
+     "git":           { "ok": true,  "detail": "git version 2.43.0 at C:\\Program Files\\Git\\cmd\\git.exe" },
      "vscode":        { "ok": true,  "detail": "1.92.1 at C:\\Users\\...\\code.cmd" },
      "csdevkit":      { "ok": true,  "detail": "" },
      "dotnet48pack":  { "ok": false, "detail": "runtime OK, targeting pack absent" },
@@ -35,7 +36,7 @@ If neither input is supplied, run with defaults and don't install anything.
 
    `cimatron.versions` is **always newest-first** (sorted using a `[version]` cast, not a lexical sort — so `2025.10` correctly follows `2025.2`). When zero versions are present, `cimatron.versions` is `[]` and `cimatron.ok` is `false`.
 
-3. **If `allow-install` is `false` (the default), stop here.** Print the JSON block and a one-line human summary like `3/4 checks passed; missing: dotnet48pack`. Don't ask the user anything — the caller drives next steps.
+3. **If `allow-install` is `false` (the default), stop here.** Print the JSON block and a one-line human summary like `4/5 checks passed; missing: dotnet48pack`. Don't ask the user anything — the caller drives next steps.
 
 4. **If `allow-install` is `true`**, follow the install commands documented in `SKILL.md` Step 3 for each missing item *except Cimatron itself* (never auto-install Cimatron). After running installs, re-run the detection blocks once and emit a fresh JSON block. Do not loop.
 
@@ -53,7 +54,7 @@ Callers like `/new-cimatron-api` need to know two specific things: did the env c
 
 ## Things to avoid
 
-- **Don't run the detection sequentially.** All four checks are independent reads — batch them in one set of parallel `PowerShell` tool calls.
+- **Don't run the detection sequentially.** All five checks are independent reads — batch them in one set of parallel `PowerShell` tool calls.
 - **Don't claim an install succeeded based on the exit code alone.** Re-run detection. An install that exits 0 but didn't actually deposit the targeting pack still counts as missing.
 - **Don't widen the schema without updating `/new-cimatron-api`.** If you add fields, update the consumer in the same change so it doesn't silently ignore them.
 - **Don't include explanatory prose between JSON fields.** Inside the fenced block, keep it pure JSON so the caller can `ConvertFrom-Json` it if it wants.

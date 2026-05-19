@@ -2,7 +2,7 @@
 
 This document is the canonical source of truth for **the Cimatron command standard** — the set of rules every Cimatron API plugin command (Plugin pattern or COM pattern) is required to satisfy. In one line: every command starts its `MenuPath` with `"API"`, keeps every user-visible string to roughly 20 characters or fewer (except `Description`), and bookends its entry-point body with a `Logger.LogInfo` start, a `try { … } catch (Exception ex) { Logger.LogException(ex, …); } finally { Logger.LogInfo(…); }` block.
 
-The rules below currently also live, nearly verbatim, in four agent files (see [Source files](#source-files)). Those agents will be migrated to reference this doc in a follow-up PR; until then, treat this file as authoritative when the wording diverges.
+The rules below currently also live, nearly verbatim, in four agent files (see [Source files](#source-files)). A migration plan exists (see that section); until it ships, treat this file as authoritative when the wording diverges.
 
 ## Rules
 
@@ -257,7 +257,7 @@ The shape of the bookend is identical; only the *method* hosting it varies by pa
 
 ## Source files
 
-These four agents currently embed the rules above nearly verbatim. They are the historical source and will be migrated in a follow-up PR (not this one) to reference this document instead of carrying the rules inline:
+These four agents currently embed the rules above nearly verbatim. They are the historical source:
 
 - `plugins/cimatron-api/agents/api-scaffold.md` — "Cimatron command standard (non-negotiable)" section (≈ lines 39-54) and the "Things to avoid" entry on the logging bookend.
 - `plugins/cimatron-api/agents/api-reviewer.md` — "Severity buckets" table (≈ lines 33-37), "Command-string conventions" checks (≈ lines 45-60), and "Logging conventions" checks (≈ lines 80-86).
@@ -265,3 +265,12 @@ These four agents currently embed the rules above nearly verbatim. They are the 
 - `plugins/cimatron-api/agents/sp-figure-builder.md` — `OnEvent` try-catch shape (≈ lines 90-131) and `OnPressed` / `OnReleased` cleanup patterns (≈ lines 150-191).
 
 This file is the source of truth. When phrasing here diverges from the agent files, this file wins.
+
+### Migration path
+
+Investigation (2026-05-18) confirmed there is no agent-body syntax that auto-loads an external file at subagent-spawn time — neither `@path` nor markdown links nor bare relative paths are resolved. Two viable migration shapes:
+
+1. **Skill-based (preferred, spawn-time inclusion).** Convert this document into a Claude Code skill (e.g. `plugins/cimatron-api/skills/command-standard/SKILL.md`) and reference it from each agent's frontmatter via `skills:`. Per the Claude Code subagent docs, the full skill content is injected into the subagent's context at spawn time, with no runtime Read tool call required. This is the cleanest dedup.
+2. **Runtime-read (works, but costs tokens).** Instruct each agent in its body to read this file with its Read tool before answering. Costs one tool call + the file's tokens per invocation, which adds up across the four affected agents.
+
+Either approach is a separate PR; the surface area (which agent prompt fragments map to which standard rule) is documented above to make that PR a mechanical translation.

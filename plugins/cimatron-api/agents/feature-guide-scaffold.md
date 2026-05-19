@@ -65,6 +65,8 @@ For a project at `<dir>` with name `<Cmd>`, scaffold these into `<dir>/`:
 | `<Cmd>Events.cs` | The `MyFeatureGuideEvents` class implementing the four event interfaces. |
 | `<Cmd>Command.cs` (COM pattern) **or** an edit to the existing plugin entry-point class (Plugin pattern) | The `Execute(IApplication)` wiring that creates the interactions and stages. |
 | `FG_Stage1.cs` (and `FG_Stage2.cs`, …) | One file per stage. |
+| `FG_Stage1.ico` (and `FG_Stage2.ico`, …) | One 32×32 `.ico` per stage. Shown by the FG stage-selector; leaving the `Bitmap` getter at `return null` is what makes a fresh FG look bare. |
+| `helpers/PictureLoader.cs` | One-time `AxHost`-derived helper that converts an on-disk `.ico` to `stdole.IPicture` for the stage `Bitmap` getter. |
 | `MyFeatureData.cs` | Per-project. Cross-stage data registry. |
 | `MySpFigureData.cs` | Only when SP figures = yes. Figure-id → `SPControlType` registry. |
 | `CaptureImageData.cs` | Always. The events class implements `_ICaptureImageEvents` even when not actively used. |
@@ -205,8 +207,8 @@ class FG_Stage<N> : interop.CimServicesAPI.FeatureGuideStage,
     // IFeatureGuideStage members — Bitmap, Index, Optional, Tooltip — all explicit-interface
     stdole.IPicture interop.CimServicesAPI.IFeatureGuideStage.Bitmap
     {
-        get { /* TODO: return a stdole.IPicture from a resource */ return null; }
-        set { throw new Exception("not implemented"); }
+        get => <YourNamespace>.Helpers.PictureLoader.Load($"FG_Stage{mIndex}.ico");
+        set => throw new Exception("not implemented");
     }
     short interop.CimServicesAPI.IFeatureGuideStage.Index
     {
@@ -249,6 +251,78 @@ When the stage **also picks entities**, add the PickTool surface:
 
 If the agent doesn't know all the PickTool member shapes by heart, look them up via the `cimatron-api` MCP search — the interfaces are well-documented under `interfaces`/`tools-commands-interaction` categories.
 
+## Stage bitmaps (don't leave them null)
+
+`IFeatureGuideStage.Bitmap` is the small picture shown in the FG's stage selector. Returning `null` (what the historical scaffold did) is what makes a freshly-generated FG look bare — the user sees blank rectangles where stage icons belong. Every stage gets a real bitmap.
+
+### Generate one icon per stage via icon-creator
+
+Delegate the actual icon production to the `cimatron-api:icon-creator` agent — once per stage. Pass a procedural-design brief derived from what that stage *does* (e.g. "stage 1: pick a face — a wireframe rectangle with a cursor over one edge", "stage 2: enter offset — a numeric spinner glyph"). Don't try to draw the icons inline; icon-creator already owns the GDI+ + `GetHicon` workflow, the 32×32 size check, and the `.ico`-magic verification step.
+
+When invoking icon-creator for stage bitmaps, pass these constraints:
+
+- **Output filename:** `FG_Stage<N>.ico` (matching the stage index). One distinct filename per call so the icons don't overwrite each other.
+- **"Just the file" mode:** tell icon-creator explicitly to skip its project-wiring step. Its default wiring path edits the plugin entry-point class's `IconSource` to point at the new icon — that would clobber the command's main icon and is wrong for stage bitmaps. The FG scaffold owns the csproj `<Content>` wiring itself (next subsection).
+- **Design constraints:** the icon must read at 16×16 — keep shapes bold, palette 2–3 colours, transparent background, no fine detail.
+
+### Wire each icon into the csproj
+
+For every `FG_Stage<N>.ico` produced, add a `<Content>` entry to the existing icon `<ItemGroup>` (the one that already carries `icon.ico`). Match the template's convention:
+
+```xml
+<Content Include="FG_Stage1.ico">
+  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+</Content>
+<Content Include="FG_Stage2.ico">
+  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+</Content>
+```
+
+`PreserveNewest`, not `Always` — same as `icon.ico`. Without these entries the build won't copy the files to the output directory and the `Bitmap` getter throws `FileNotFoundException` on stage activation.
+
+### Write the picture loader once
+
+Drop a single shared helper at `<dir>/helpers/PictureLoader.cs` (alongside the template's existing `helpers/Logger.cs`):
+
+```csharp
+using System.Drawing;
+using System.IO;
+using System.Reflection;
+using System.Windows.Forms;
+
+namespace <YourNamespace>.Helpers
+{
+    internal class PictureLoader : AxHost
+    {
+        private PictureLoader() : base(string.Empty) { }
+
+        public static stdole.IPicture Load(string filename)
+        {
+            string exeDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string path = Path.Combine(exeDir, filename);
+            using (var img = Image.FromFile(path))
+            {
+                return (stdole.IPicture)GetIPictureFromPicture(img);
+            }
+        }
+    }
+}
+```
+
+Why this shape:
+
+- `AxHost.GetIPictureFromPicture` is `protected static`, so the derived class is the canonical way to access it from C#. This is the standard COM-interop pattern for handing a `System.Drawing.Image` to OLE `IPicture` consumers like Cimatron's FG.
+- `Assembly.GetExecutingAssembly().Location` resolves to the same directory as the plugin DLL (the build output), which is where the `<Content>` copy lands. Don't try to call the plugin entry-point class's `GetExecutionPath()` from here — it isn't in scope inside stage classes.
+- `System.Windows.Forms` + `System.Drawing` are already on the .NET 4.8 reference list; no new csproj `<Reference>` or NuGet package is needed. Just the new `<Compile Include="helpers\PictureLoader.cs" />` entry.
+
+Add a single `<Compile>` entry to the csproj for the new helper:
+
+```xml
+<Compile Include="helpers\PictureLoader.cs" />
+```
+
+Stage classes then call it from their `Bitmap` getter (already shown in the events/stage templates above): `Helpers.PictureLoader.Load($"FG_Stage{mIndex}.ico")`.
+
 ## Data classes
 
 Scaffold each into `<dir>/` with a fresh `[Guid]`. The structure is identical across projects; the only thing that changes is the namespace and the GUID.
@@ -267,7 +341,8 @@ Before declaring done, confirm:
 - Every new class has a unique `[Guid("…")]`.
 - The events class implements all four interfaces (`_IFeatureGuideEvents`, `_ICaptureImageEvents`, `_IToolServicesEvents`, `_ISPEvents`).
 - The three Advise GUIDs appear verbatim and pair with their source objects.
-- The csproj has `<Compile Include="...">` entries for every new `.cs` file. This template uses explicit compile lists; globs won't pick the files up.
+- The csproj has `<Compile Include="...">` entries for every new `.cs` file (including `helpers/PictureLoader.cs`). This template uses explicit compile lists; globs won't pick the files up.
+- Every stage's `Bitmap` getter calls `Helpers.PictureLoader.Load(...)` — **no stage returns `null`**. The referenced `FG_Stage<N>.ico` exists at the project root and has a matching `<Content Include="FG_Stage<N>.ico"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>` entry in the csproj.
 - For the COM pattern: the entry-point class is `[ComVisible(true)]` with `[Guid(...)]` and the csproj has `<RegisterForComInterop>` set.
 - For the Plugin pattern: the FG wiring is inside the existing `ICimWpfCommand.Execute(IApplication)` and the `IApplication` cast targets `interop.CimAppAccess.IApplication` at the boundary, with an `interop.CimatronE.IApplication` view inside (they're the same COM object).
 - The logging follows the Cimatron command standard: `LogData` start → `try/catch (LogException(ex, …))` → `finally (LogData …)` on every entry point.
@@ -281,9 +356,10 @@ Before declaring done, confirm:
 3. Generate fresh GUIDs — one per scoped class.
 4. Write the events class, data classes, and stage classes.
 5. Edit the entry-point class (Plugin pattern) **or** write `<Cmd>Command.cs` (COM pattern) to host the wiring.
-6. Edit the csproj to add `<Compile>` entries for every new file.
-7. Sanity-check against the verification list above.
-8. Report what was created with absolute paths. Note TODOs the user must fill in (`OnApply` body, stage `Bitmap` resources, `OnPressed` SP-figure work if SP=yes). Do **not** commit.
+6. Write `helpers/PictureLoader.cs` (only if it doesn't already exist) and generate `FG_Stage<N>.ico` per stage by invoking `cimatron-api:icon-creator` in "just the file" mode, one call per stage with a distinct output filename.
+7. Edit the csproj to add `<Compile>` entries for every new `.cs` file (including `helpers/PictureLoader.cs`) and `<Content>` entries for every new `FG_Stage<N>.ico`.
+8. Sanity-check against the verification list above.
+9. Report what was created with absolute paths. Note remaining TODOs the user must fill in (`OnApply` body, `OnPressed` SP-figure work if SP=yes). Stage bitmaps are no longer a TODO — they're populated by this scaffold. Do **not** commit.
 
 ## Things to avoid
 

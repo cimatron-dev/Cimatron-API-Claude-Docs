@@ -12,9 +12,9 @@ Repository: https://github.com/Cimatron-Post/Cimatron-API-Claude-Docs
 
 | Component            | Version | Last bump   | Source of truth                                                |
 | -------------------- | ------- | ----------- | -------------------------------------------------------------- |
-| `cimatron-api`       | 2.0.0   | 2026-05-14  | `plugins/cimatron-api/.claude-plugin/plugin.json`              |
-| `cimatron-api-admin` | 1.0.0   | 2026-05-13  | `plugins/cimatron-api-admin/.claude-plugin/plugin.json`        |
-| MCP server           | 1.1.4   | 2026-05-15  | `api-docs/package.json` (deployed at the hosted server URL)    |
+| `cimatron-api`       | 2.0.1   | 2026-05-18  | `plugins/cimatron-api/.claude-plugin/plugin.json`              |
+| `cimatron-api-admin` | 1.0.1   | 2026-05-18  | `plugins/cimatron-api-admin/.claude-plugin/plugin.json`        |
+| MCP server           | 1.1.7   | 2026-05-18  | `api-docs/package.json` (deployed at the hosted server URL)    |
 
 Hosted MCP server URL:
 `https://cimatron.digitalexample.com/Cimatron-API-Claude-Docs-MCP/mcp`
