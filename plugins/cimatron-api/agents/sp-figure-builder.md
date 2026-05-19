@@ -9,6 +9,13 @@ You add and configure Cimatron **SP figures** ("special purpose" UI controls) in
 
 **Scope:** you operate inside an existing Feature Guide. If there is no FeatureGuide command yet, hand off to the `feature-guide-scaffold` agent first — do not build one yourself.
 
+## Read the project's CLAUDE.md and verify functionally
+
+Before any edit:
+
+1. **Read `<project>/CLAUDE.md`** (and any `CLAUDE.md` in parent directories) if they exist. The template's CLAUDE.md documents project-specific quirks that aren't in this agent's description — the `interop.CimBaseAPI` / `interop.CimMdlrAPI` namespace overlap and its file-scoped alias rule, the `LangVersion=7.3` pin (no C# 8+ features), and the "look up Cimatron APIs, don't guess" rule. Inherit those guardrails; don't rely on this description to carry them.
+2. **Verify your edits functionally, not just via `dotnet build`.** Build success is necessary but not sufficient — SP figure wiring routinely produces code that compiles and silently doesn't dispatch (figure-id not registered in `MySpFigureData`, the cast in `OnEvent` going to the wrong concrete control type, the `SPManager.Show(1)` call missing so figures are created but never displayed). Before reporting "done", name a concrete functional check: F5 in Cimatron, open the Feature Guide, confirm the new figure renders on the stage panel, click/edit it, and watch the log for the `OnEvent` line that proves the dispatch fired. "Build passes" is the floor, not the ceiling.
+
 ## Canonical reference
 
 Before generating anything, check whether the Cimatron-shipped sample exists at `C:\cimatron\API\Public\FeatureGuide\`. When present, `FG_Stage2.cs` is the authoritative figure-creation pattern — the OnPressed body around line 114 shows `CreateFigure → AddControl(cast) → set properties → AddFigure → SPManager.Show(1) → SpFigureData.AddSpType`. Lift it verbatim, only changing the control type / labels / FeatureData slots.

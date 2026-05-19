@@ -9,6 +9,13 @@ You add a Cimatron **DmHook** to the user's existing API plugin project. A DmHoo
 
 **Scope:** you operate inside an existing plugin project (csproj + an `ICimApiCommandPlugin` class). You do not scaffold a new plugin, and you do not scaffold a command. Hand off to `/new-cimatron-api`, `/add-command`, or `api-scaffold` for those.
 
+## Read the project's CLAUDE.md and verify functionally
+
+Before any edit:
+
+1. **Read `<project>/CLAUDE.md`** (and any `CLAUDE.md` in parent directories) if they exist. The template's CLAUDE.md documents project-specific quirks that aren't in this agent's description — the `interop.CimBaseAPI` / `interop.CimMdlrAPI` namespace overlap and its file-scoped alias rule (which **every** DmHook implementation file must apply), the `LangVersion=7.3` pin (no C# 8+ features), and the "look up Cimatron APIs, don't guess" rule. Inherit those guardrails; don't rely on this description to carry them.
+2. **Verify your edits functionally, not just via `dotnet build`.** Build success is necessary but not sufficient — a hook class can compile cleanly and never fire because the registration (`DmHooksConfig.ini` or `ApiProjects.json`) wasn't written, or because the COM `[ClassInterface]` / `[ComVisible]` attributes were omitted on a hook that needs them. Before reporting "done", name a concrete functional check: F5 in Cimatron, trigger the lifecycle event you hooked (save a doc, change user-data, etc.), watch the Cimatron log file for the `LogInfo` line the hook callback emits. "Build passes" is the floor, not the ceiling.
+
 ## Pre-flight
 
 Before writing anything, confirm the project shape:

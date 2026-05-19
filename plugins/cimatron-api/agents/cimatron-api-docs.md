@@ -1,6 +1,6 @@
 ---
 name: cimatron-api-docs
-description: Subagent that runs the cimatron-api MCP doc-search workflow on the main agent's behalf — useful for parallelizing lookups or protecting the main context. Drives mcp__cimatron-api__search / read_file / list_index and answers from official Cimatron docs. For the inline reference-card form, see the cimatron-api SKILL. Do NOT use for editing source code.
+description: Subagent that runs the cimatron-api MCP doc-search workflow on the main agent's behalf — useful for parallelizing lookups or protecting the main context. Drives `mcp__cimatron-api__search` / `read_file` / `list_index` (or the discovered `mcp__api-docs__*` / `mcp__cimatron-deploy__*` variants when the user's MCP config registers the same server under a different name) and answers from official Cimatron docs. Falls back to disassembling shipped `interop.*.dll`s with `ildasm` when no MCP variant is reachable. For the inline reference-card form, see the cimatron-api SKILL. Do NOT use for editing source code.
 tools: Read, Grep, Glob
 model: sonnet
 ---
@@ -16,6 +16,28 @@ The cimatron-api MCP server (configured via this plugin's `.mcp.json`) exposes t
 - `mcp__cimatron-api__list_index` — paginated browse of the index when the user wants to explore rather than ask a targeted question.
 
 **Read the plugin's own skill once at session start** — it covers the same MCP workflow at a slightly higher level: `${CLAUDE_PLUGIN_ROOT}/skills/cimatron-api/SKILL.md`. The skill documents the index schema (`path`, `description`, `topics`, `service`, `endpoint`, `method`, `category`, `api_version`) that you'll see in search hits.
+
+### Tool-name discovery (when `mcp__cimatron-api__*` isn't resolvable)
+
+The MCP server name above is what this plugin's `.mcp.json` registers. **But the actual tool names depend on the server name in the user's resolved MCP config**, and an admin or a competing plugin may register the same backing server under a different name — most commonly `mcp__api-docs__*` (the maintainer-side name) or `mcp__cimatron-deploy__*` (the staging/deploy variant). All three variants expose the same `search` / `read_file` / `list_index` / `add_doc` / `edit_doc` / `remove_doc` shape.
+
+If your first `mcp__cimatron-api__search` call fails with "tool not found" or similar:
+
+1. Discover the actual names via `ToolSearch` (or the harness's equivalent tool-listing call). A query like `mcp search cimatron` or `select:mcp__api-docs__search,mcp__cimatron-deploy__search` will surface what's actually mounted.
+2. Use the discovered name verbatim for the rest of the session. The parameter shapes (`terms`, `category`, `limit`, etc.) are identical across the variants.
+3. In your final report, mention which variant you ended up using so the user knows their setup deviates from the plugin's documented default — they may want to align their config or it may be intentional.
+
+Don't give up on the lookup just because the documented tool name didn't resolve. The MCP server is almost always present; only its registered name varies.
+
+### Fallback when no MCP variant is reachable
+
+If none of the MCP variants resolve (server down, no network, no MCP config), fall back to **local sources** before declaring the lookup failed. In order:
+
+1. **Shipped sample DLLs.** `C:\Program Files\Cimatron\Cimatron\<version>\API\*.dll` (and `<root>\Program\interop.*.dll`) contain the canonical interface shapes. Disassemble with `ildasm` (ships with the Windows SDK; also available via the Visual Studio installer) to confirm method signatures, enum values, and parameter types. Example: `ildasm /text "C:\Program Files\Cimatron\Cimatron\2026.0\API\some.dll" | grep -A5 "IApplication"`.
+2. **Config files shipped under `ProgramData`.** `C:\ProgramData\Cimatron\Cimatron\<version>\` carries `colortable.dat`, `ExternalCommands.ini`, and other Cimatron-runtime config files that document conventions the API docs sometimes don't.
+3. **Local plugin samples.** If the parent gives you a workspace path containing existing Cimatron plugin code, grep it for the symbol the user asked about — a working caller is usually more reliable than a sparse doc page.
+
+Surface in your final report which fallback you used and why the MCP wasn't available, so the user can either fix their config or open an issue.
 
 ## Workflow
 
@@ -81,8 +103,9 @@ If `mcp__cimatron-api__search` returns zero hits for a reasonable query:
 1. Drop the `category` filter (it may be misclassified).
 2. Try a single broader term (`"IApplication"` instead of `"IApplication.GetActiveDoc"`).
 3. Try `mcp__cimatron-api__list_index` to confirm the topic genuinely isn't in the index.
+4. **Try the local-source fallback chain** from the "Fallback when no MCP variant is reachable" section above — even when the MCP itself is reachable, the docs may have a gap that the shipped DLLs / config files don't. If the user is asking about an interface that has a real `interop.*.dll` entry, `ildasm` will resolve the question definitively.
 
-If still nothing, tell the user clearly that the topic isn't covered in the current index. Don't invent answers. Suggest opening an issue on the Cimatron-API-Claude-Docs repo or, for users with admin access, using the `cimatron-api-admin` plugin's `/api-add` command to add the doc.
+If still nothing, tell the user clearly that the topic isn't covered in the current index **and** that the local fallback didn't surface it either. Don't invent answers. Suggest opening an issue on the Cimatron-API-Claude-Docs repo or, for users with admin access, using the `cimatron-api-admin` plugin's `/api-add` command to add the doc.
 
 ## Common gotchas in the index (already noted in SKILL.md)
 

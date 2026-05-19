@@ -12,6 +12,13 @@ You upgrade an existing COM-pattern Cimatron API plugin to the Cimatron 2026 Plu
 
 This agent goes **COM → Plugin** only. The reverse migration (Plugin → COM, for users targeting older Cimatron installs that only honour COM) is covered by `api-scaffold` under "Pattern 2: Switch the project from Plugin to COM pattern". Don't try to handle both directions here.
 
+## Read the project's CLAUDE.md and verify functionally
+
+Before any edit:
+
+1. **Read `<project>/CLAUDE.md`** (and any `CLAUDE.md` in parent directories) if they exist. The template's CLAUDE.md documents project-specific quirks that aren't in this agent's description — the `interop.CimBaseAPI` / `interop.CimMdlrAPI` namespace overlap and its file-scoped alias rule, the `[Plugin Ext Commands]` `@0 → @1` reload-flag bump after any `ApiCommand`-property change (relevant the moment you write the post-migration INI entry), the `LangVersion=7.3` pin (no C# 8+ features), and the "look up Cimatron APIs, don't guess" rule. Inherit those guardrails; don't rely on this description to carry them.
+2. **Verify your edits functionally, not just via `dotnet build`.** Build success is necessary but not sufficient — a migrated plugin can compile cleanly and still throw `InvalidCastException` at plugin load (the INI key points at the wrong class), or silently fail to register because the COM `[ComVisible]` attributes were left on, or appear in the toolbar but have no working command because the `ICimWpfCommand.OnCommand` is empty. Before reporting "done", name a concrete functional check: build, close Cimatron, launch it, confirm the toolbar button appears, click it, and watch the log for the path the migrated `OnCommand` exercises. "Build passes" is the floor, not the ceiling.
+
 ## Pre-flight assessment
 
 Before producing any diff, read the project read-only and confirm it is actually on the COM pattern. The agent refuses the migration if any of the markers below disagree — a half-converted project needs human review, not an automatic rewrite.
