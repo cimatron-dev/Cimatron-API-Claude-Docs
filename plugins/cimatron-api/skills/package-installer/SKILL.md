@@ -90,9 +90,23 @@ If the INI file is missing or the entry isn't there, uninstall reports a friendl
 
 If a DLL is locked because `CimatronE.exe` is running, the installer prints which file is locked, tells the user to close Cimatron, and exits with code 3. It does **not** try to `taskkill` Cimatron — the user might have unsaved work.
 
+## Toolbar icon: the sibling-PNG cache that the renderer actually uses
+
+`CimWpfContracts.WpfImageIdentifier` does NOT render the toolbar button from the source `.ico` directly. On first successful icon load Cimatron extracts a 32×32 PNG (`<basename>.png`) next to the source `.ico` in `<CimatronRoot>\Program\` and renders from *that* cache. The `.ico` is the seed; the `.png` is the live render asset.
+
+When the installer overwrites the `.ico` and bumps the INI to `@1`, Cimatron tries to regenerate the cache on the next `AppendCommand()` re-read. That regen has been observed to fail silently on some machines, leaving the toolbar button blank. F5 doesn't hit this because Cimatron's existing cache is still valid and the INI sits at `@0` (cached-state load path).
+
+**Three-layer mitigation** the slash command and this skill apply by default:
+
+1. **Plugin code.** The scaffolder template's `ApiNamePlugin.cs` ships an `EnsureToolbarIconCache` helper that runs in `AppendCommand` before `WpfImageIdentifier` is constructed. It materializes the sibling `.png` from the `.ico` via `System.Drawing.Icon(icoPath, 32, 32).ToBitmap().Save(pngPath, ImageFormat.Png)`. Silently no-ops on write failure (Program Files may be read-only for non-elevated callers) and lets Cimatron's own regen run as before.
+2. **Installer Payload.** Step 4 of `/package-installer` auto-copies every `<Content Include="...">` file from the plugin's csproj into the Payload — so when the developer follows the convention of tracking the `<basename>.png` cache as a Content entry (alongside the `.ico`), it ships in the installer automatically and first-launch needs zero I/O on the user's machine.
+3. **Icon encoding.** The `.ico` seed must have BMP-encoded frames (see step 3a of the slash command). PNG-in-ICO seeds break both the `WpfImageIdentifier` regen path and `System.Drawing.Icon.ToBitmap`, so the runtime cache-materialization in (1) fails too.
+
+A plugin can opt out of (1) by removing the helper from `AppendCommand`, and out of (2) by not listing the `.png` as Content. The encoding constraint in (3) is non-negotiable for any plugin that uses `WpfImageIdentifier` or `Icon.ToBitmap`.
+
 ## Edge cases worth being explicit about
 
-- **Multiple plugins, one shared `icon.ico`:** The Cimatron 2026 plugin template ships every plugin with an `icon.ico` next to the DLL. When two installers both deploy an `icon.ico` to `<root>\Program\`, the second overwrites the first. This matches the dev `/build` behavior (where each F5 deploy overwrites the shared file) and isn't a bug in the installer. If a developer wants per-plugin icons that don't clobber each other, they have to rename their icon at packaging time (`<ApiName>.ico`) and update the `IconSource` line in their `<ApiName>Plugin.cs`. The installer doesn't do that rename automatically — it copies whatever filename it received in `Payload/`.
+- **Multiple plugins, one shared `icon.ico`:** The Cimatron 2026 plugin template ships every plugin with an `icon.ico` next to the DLL. When two installers both deploy an `icon.ico` to `<root>\Program\`, the second overwrites the first. This matches the dev `/build` behavior (where each F5 deploy overwrites the shared file) and isn't a bug in the installer. If a developer wants per-plugin icons that don't clobber each other, they have to rename their icon at packaging time (`<ApiName>.ico`) and update the `IconSource` line in their `<ApiName>Plugin.cs`. The installer doesn't do that rename automatically — it copies whatever filename it received in `Payload/`. The same rename should be applied to the sibling `<basename>.png` cache so the two stay paired.
 - **End-user has only a 2024.0 install but the installer was packaged with `--target-version 2026.0`:** the installer exits with code 2 and prints which version it expected vs what's installed. The fix is to repackage from the dev side with a different `--target-version`, not to teach the installer to downgrade-deploy.
 - **End-user runs the installer on a machine without .NET Framework 4.8:** the EXE won't start (Windows will offer to install the framework). This is rare in practice — Cimatron itself requires .NET 4.8, so any machine that has Cimatron has the framework. We don't try to bundle the framework.
 - **End-user runs the installer twice in a row:** install is idempotent. The second run overwrites the DLL (same content), the INI line is found and rewritten in place (no duplicates), and the user sees the same success summary. No "already installed" detection — it's cheaper and more reliable to just re-deploy.

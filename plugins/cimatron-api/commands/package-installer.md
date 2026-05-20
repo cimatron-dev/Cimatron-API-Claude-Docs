@@ -33,6 +33,41 @@ Plugin developers run this **after** their plugin compiles cleanly and works und
 
    **Also locate `icon.ico`** at the project root. If present, it gets embedded alongside the DLL. If absent, the installer skips icon deployment and the plugin will fall back to whatever `IconSource` resolves to at runtime.
 
+3a. **Pre-flight: icon-encoding vs loader compatibility.** Cimatron has two icon-load paths plus a cache layer the toolbar renders from:
+
+   - **`CimWpfContracts.WpfImageIdentifier`** (the toolbar `IconSource` path) uses WPF/WIC. It reads the **sibling 32×32 `<basename>.png`** that Cimatron caches next to the source `.ico` and renders the toolbar button from *that*. The seed `.ico` must have **BMP-in-ICO** frames so the cache can be (re)generated successfully; PNG-in-ICO seeds fail the regen and leave the toolbar blank under Cimatron's `@1` re-read.
+   - **`System.Drawing.Icon.ToBitmap`** (the typical `LoadIconAsBitmap` / `new Icon(path).ToBitmap()` shape used to feed `fg.SetBitmap(Bitmap)`) walks classic `BITMAPINFOHEADER` + XOR/AND payloads and **throws `ArgumentOutOfRangeException`** on PNG-in-ICO. Wants **BMP-in-ICO**.
+   - **`Image.FromFile`** (e.g. the template's `PictureLoader.Load` for FG *stage* bitmaps) is GDI+ and tolerates either. Safe.
+
+   F5 development does **not** bump `[Plugin Ext Commands]` from `@0` to `@1`, so a broken toolbar icon is silently masked by Cimatron's cached UI metadata. The installer **does** bump to `@1`, which forces a fresh `AppendCommand()` evaluation on the next Cimatron launch — and that's when the bug appears in front of the end-user. Catch it here, before shipping.
+
+   For each `.ico` referenced by `<Content Include="X.ico">` in the csproj:
+
+   1. **Inspect ICO frame encoding.** For each entry in the ICO directory, look at the first 8 bytes at the frame's data offset. `89 50 4E 47 0D 0A 1A 0A` ⇒ PNG-encoded frame. Anything else ⇒ BMP-encoded frame (classic `BITMAPINFOHEADER`). Bucket each file as `PNG-only`, `BMP-only`, or `mixed`. Pillow is the cleanest tool; the inline Python recipe lives at the bottom of this section.
+   2. **Grep the project source for consumers of that file.** Use the icon's filename (no path) and classify each call site:
+      - `WpfImageIdentifier(Path.Combine(..., "X.ico"), ...)` ⇒ **WPF/WIC consumer** (wants BMP-in-ICO seed + a sibling `<basename>.png` cache).
+      - `new Icon("X.ico"...).ToBitmap()` *or* a helper named `LoadIconAsBitmap`/`IconToBitmap`/similar ⇒ **System.Drawing.Icon consumer** (wants BMP-in-ICO).
+      - `Image.FromFile(... "X.ico" ...)` *or* the template's `PictureLoader.Load("X.ico")` ⇒ **GDI+ consumer** (tolerant; ignore).
+   3. **Flag mismatches** before doing anything else:
+      - **Critical:** an ICO consumed by `WpfImageIdentifier` or `Icon.ToBitmap` / `LoadIconAsBitmap` has **PNG-encoded** frames. WPF/WIC's cache regen leaves the toolbar blank; `Icon.ToBitmap` throws `ArgumentOutOfRangeException` at runtime. Both want **BMP-in-ICO**. Fix: re-encode every frame in that ICO as BMP/DIB. The scaffolder template's `icon.ico` is the reference layout (4 bpp + 8 bpp + 32 bpp, 16×16 and 32×32, all BMP).
+      - **Warning:** an ICO consumed by `WpfImageIdentifier` has **no sibling `<basename>.png`** listed in the csproj's `<Content>` items. Cimatron will try to regenerate the cache on the first `@1` re-read, which has been observed to leave the toolbar blank on some machines (ManufacturingPlanning, May 2026). Mitigations (any one suffices):
+        - Pre-generate the cache by running the plugin once under F5 and copying `<CimatronRoot>\Program\<basename>.png` back into the project root + csproj as `<Content CopyToOutputDirectory="PreserveNewest">`. Step 4 will then auto-include it in the Payload.
+        - Confirm the plugin's `AppendCommand` calls a helper like `EnsureToolbarIconCache` that materializes the cache at runtime via `System.Drawing.Icon(icoPath, 32, 32).ToBitmap().Save(pngPath, ImageFormat.Png)`. The scaffolder template ships this helper by default; a plugin inherited from before the helper was added may need it backfilled.
+
+   If any **Critical** flag fires, stop and surface the findings. **Warning** flags are non-blocking but should be reported in the final report so the developer can decide whether to take a mitigation before shipping.
+
+   Reference snippet for the ICO-encoding inspection:
+
+   ```python
+   # Identify per-frame encoding of an .ico
+   import struct, sys
+   with open(sys.argv[1], 'rb') as f: d = f.read()
+   _, _, n = struct.unpack('<HHH', d[:6])
+   for i in range(n):
+       *_ , size, offs = struct.unpack('<BBBBHHII', d[6+i*16:6+(i+1)*16])
+       print('PNG' if d[offs:offs+8] == b'\x89PNG\r\n\x1a\n' else 'BMP')
+   ```
+
 4. **Stage the installer build folder.** Create a clean temp folder at `<plugin>/obj/installer/` (delete and recreate if present — stale state from a previous run is the most common failure mode). Copy these files from the `package-installer` skill's `installer-template/` directory into the temp folder:
    - `Installer.csproj`
    - `Program.cs`
@@ -40,9 +75,10 @@ Plugin developers run this **after** their plugin compiles cleanly and works und
 
    Then copy the plugin's built artifacts into the same temp folder:
    - `<CimatronRootPath>\<ApiName>.dll` → `<temp>/Payload/<ApiName>.dll`
-   - `<plugin>/icon.ico` → `<temp>/Payload/icon.ico` (only if it exists)
+   - **Every `<Content Include="...">` file in the plugin's `.csproj`** whose path resolves to an existing file under `<plugin>/` → `<temp>/Payload/<filename>`. This catches every plugin asset the project explicitly ships: the toolbar `.ico`, the FG bitmap `.ico`, any sibling `<basename>.png` cache files for `WpfImageIdentifier`, plus any other config files (`appsettings.json`, etc.). Flatten paths — the installer extracts flat into `<CimatronRoot>\Program\`, so subdirectories aren't supported. If two Content entries resolve to the same filename, stop and surface the conflict.
+   - For backward compatibility, also include `<plugin>/icon.ico` if it exists and isn't already covered by a Content entry.
 
-   The `<EmbeddedResource>` glob in `Installer.csproj` picks up everything under `Payload/` automatically, so any extra files (additional `.ico`s, an `appsettings.json`, etc.) the developer drops into `<plugin>/Payload/` next to their csproj will also be picked up if they exist at copy time.
+   The `<EmbeddedResource>` glob in `Installer.csproj` picks up everything under `Payload/` automatically, so any extra files the developer drops into `<plugin>/Payload/` next to their csproj (without csproj entries) will also be picked up if they exist at copy time.
 
 5. **Template the installer source.** In the copied `Program.cs`, replace the placeholders:
    - `@@API_NAME@@` → `<ApiName>` (e.g. `MyTool`)
@@ -50,7 +86,7 @@ Plugin developers run this **after** their plugin compiles cleanly and works und
    - `@@PLUGIN_CLASS@@` → `<Namespace>.<PluginClass>` (the `ICimApiCommandPlugin` class, used as the INI key)
    - `@@VERSION@@` → the version from step 2 (used in the installer's startup banner)
    - `@@TARGET_VERSION@@` → the value of `--target-version` (default `any`)
-   - `@@HAS_ICON@@` → `true` if `icon.ico` was copied in step 4, `false` otherwise
+   - `@@HAS_ICON@@` → `true` if **any** `.ico` ended up in `<temp>/Payload/` (from a Content entry or the legacy `icon.ico` fallback), `false` otherwise. Used only for the end-user summary banner; the actual extraction is driven by what's embedded.
 
    In `Installer.csproj`, replace:
    - `@@INSTALLER_ASSEMBLY_NAME@@` → `<ApiName>-Installer`
@@ -88,12 +124,21 @@ Plugin developers run this **after** their plugin compiles cleanly and works und
 
    The README is optional — if the user passed `--no-uninstall` or asked for a leaner output, skip it.
 
-8. **Report.** Print:
+8. **Drop the `deploy.ps1` bootstrap into the plugin root (first run only).** Check the plugin root for `deploy.ps1`. If it exists, leave it alone — the developer may have customized it. If it doesn't:
+   - Copy `plugins/cimatron-api/skills/package-installer/deploy-template/deploy.ps1` to `<plugin>/deploy.ps1`.
+   - Copy `plugins/cimatron-api/skills/package-installer/deploy-template/deploy.cmd` to `<plugin>/deploy.cmd`.
+
+   These give the developer a `./deploy` entry point they can re-run **without invoking Claude Code**: the script caches the installer template under `<plugin>/.tools/package-installer/`, downloads it on first run (and on `-Update`), then calls `build-installer.ps1` to do the full plugin-discovery + DLL build + installer build flow this slash command does. After this step the developer can iterate purely via `./deploy` (or `./deploy.ps1 -Configuration Debug`, `-TargetVersion 2026.0`, `-Update`, etc.).
+
+   Mention the new files in the report below so the developer knows they're there.
+
+9. **Report.** Print:
    - The path to the installer EXE.
    - Its size (sanity check — anything under a few MB is normal; anything bigger suggests the embedded DLL has unwanted dependencies).
    - The plugin class key that will be written to the INI.
    - The default install target (`any version >= 2024.0`, or the specific version if `--target-version` was set).
    - A one-line reminder: **the end-user must close Cimatron and run the EXE as Administrator.** The UAC manifest will request elevation automatically; if the user is on a managed machine where UAC is disabled, the install will fail with "access denied" on the Program folder.
+   - If `deploy.ps1` was just dropped in by step 8, also mention: **from now on the developer can re-run `./deploy` (or `./deploy.ps1 -Update` to refresh the cached template) without re-invoking this slash command.**
 
 ## Failure modes
 
