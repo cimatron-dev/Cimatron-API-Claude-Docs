@@ -24,7 +24,7 @@ The plugin layout you audit against is the one produced by `/new-cimatron-api`:
 - `<ApiName>Plugin.cs` implementing `CimUIInfrastructure.PlugIn.ICimApiCommandPlugin` with `AppendCommand()` (singular) returning a single `ApiCommand`.
 - `<ApiName>Command.cs` (or `<ApiName>PluginCommand.cs` in older variants) implementing `CimUIInfrastructure.Commands.ICimWpfCommand`.
 - `helpers/Logger.cs` under the project namespace.
-- `icon.ico` at the project root, wired via `IconSource = new CimWpfContracts.WpfImageIdentifier(...)`.
+- A per-plugin `<AssemblyName>.ico` at the project root, wired via `IconSource = new CimWpfContracts.WpfImageIdentifier(...)`. The template historically emitted a generic `icon.ico`; projects that still ship that filename are flagged because deploy collisions are a real failure mode in the shared `<CimatronRoot>\Program\` folder.
 
 When a project doesn't match this shape (no `ICimApiCommandPlugin`, an older COM-pattern class, a hand-rolled csproj), the audit still runs but flags the divergence at the top of the report and notes that some checks may not apply.
 
@@ -93,6 +93,7 @@ The standard pattern is the start/finish bookend with `LogException` in the catc
 - `<OutputPath>` is `$(CimatronRootPath)` (so Debug drops into the live Cimatron install). Hardcoded absolute path → **Critical** (breaks for other devs/CI).
 - Interop `<Reference>` entries use `<HintPath>$(CimatronRootPath)interop.<X>.dll</HintPath>` + `<EmbedInteropTypes>True</EmbedInteropTypes>`. Hardcoded version-specific HintPath → **Should fix**.
 - Icon entry: `<Content Include="<icon>.ico">` with `<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>` (template default) or `Always`. Missing CopyToOutputDirectory → **Should fix** (the icon won't ship). Wrong filename relative to what `IconSource` references → **Critical**.
+- **Icon filename is per-plugin, not the generic `icon.ico`.** Every plugin's `GetExecutionPath()` resolves to the shared `<CimatronRoot>\Program\` folder, so two plugins that both ship `icon.ico` overwrite each other on deploy. The expected filename is `<AssemblyName>.ico` (e.g. `MoldCheck.ico`). Generic `icon.ico` in `<Content Include>` and/or the `IconSource` path → **Should fix** (loads today, clobbers any sibling plugin that does the same). Flag this on the icon file, the csproj content entry, **and** the `IconSource` literal — all three must agree on the per-plugin name.
 
 ### UI conventions — Should fix
 
@@ -107,7 +108,7 @@ Applies to projects that ship UI. Skip if the project has no UI.
 
 - `<ApiName>Plugin.cs` matches `<AssemblyName>` from the csproj (template convention).
 - `helpers/Logger.cs` exists under the project namespace. Missing → **Should fix** (entry-point logging won't compile against the convention).
-- `icon.ico` exists at the project root and is a real `.ico` (first four bytes `00 00 01 00`). Use Pillow if available; otherwise inspect the bytes via `head -c 4 <path> | xxd`. Anything else → **Critical** (the toolbar entry will load with a broken icon).
+- The `.ico` referenced by `IconSource` exists at the project root and is a real `.ico` (first four bytes `00 00 01 00`). Resolve the filename from the `IconSource` literal (expected `<AssemblyName>.ico`); fall back to checking `icon.ico` only if the project still uses the generic name. Use Pillow if available; otherwise inspect the bytes via `head -c 4 <path> | xxd`. Anything else → **Critical** (the toolbar entry will load with a broken icon).
 
 ## Workflow
 

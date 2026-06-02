@@ -156,8 +156,13 @@ Write-Host "  Plugin DLL:    $DllPath"
 
 # ----- Step 3: stage the installer build folder -----
 
-$IconPath = Join-Path $PluginRoot 'icon.ico'
+$IconPath = Join-Path $PluginRoot "$ApiName.ico"
+if (-not (Test-Path -LiteralPath $IconPath)) {
+    $LegacyIconPath = Join-Path $PluginRoot 'icon.ico'
+    if (Test-Path -LiteralPath $LegacyIconPath) { $IconPath = $LegacyIconPath }
+}
 $HasIcon = Test-Path -LiteralPath $IconPath
+$IconLeaf = if ($HasIcon) { Split-Path -Leaf $IconPath } else { $null }
 
 $ExtraPayloadDir = Join-Path $PluginRoot 'Payload'
 $ExtraPayloadFiles = @()
@@ -179,7 +184,7 @@ foreach ($name in 'Installer.csproj', 'Program.cs', 'app.manifest') {
 
 Copy-Item -LiteralPath $DllPath -Destination (Join-Path $StagePayloadDir "$ApiName.dll") -Force
 if ($HasIcon) {
-    Copy-Item -LiteralPath $IconPath -Destination (Join-Path $StagePayloadDir 'icon.ico') -Force
+    Copy-Item -LiteralPath $IconPath -Destination (Join-Path $StagePayloadDir $IconLeaf) -Force
 }
 foreach ($extra in $ExtraPayloadFiles) {
     Copy-Item -LiteralPath $extra.FullName -Destination $StagePayloadDir -Force

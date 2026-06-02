@@ -57,13 +57,13 @@ Arguments: $ARGUMENTS
 
    If registration fails with access denied, do not abort the scaffold — print the exact line that needs to be added and tell the user to add it manually (or relaunch elevated and rerun `/register-command`). The project is fine; only the registration step needs admin.
 
-6. **Offer to customize the toolbar icon.** Before the final summary, ask the user once (single multiple-choice prompt) how to handle the plugin's icon. The template ships with a placeholder `icon.ico`; this step decides whether to replace it before the user hits F5.
+6. **Offer to customize the toolbar icon.** Before the final summary, ask the user once (single multiple-choice prompt) how to handle the plugin's icon. The template ships with a placeholder `<ApiName>.ico` (per-plugin filename — generic `icon.ico` would collide in the shared `Program\` folder); this step decides whether to replace it before the user hits F5.
 
    Options to offer:
 
-   - **Have Claude design one based on the plugin's purpose** (recommended for new plugins). If chosen, ask one follow-up: "Briefly, what does this plugin do?" Build a procedural-design brief from `<ApiName>`, the resolved `<MenuPath>`, and the user's one-line description, then spawn the `cimatron-api:icon-creator` agent with that brief. The agent draws the icon procedurally with GDI+, writes `icon.ico` at the project root (overwriting the placeholder, so existing `IconSource` wiring keeps working), and verifies the `.ico` magic + 32×32 size.
-   - **Use an existing image.** Ask for an absolute path to a PNG/JPG/BMP/GIF or existing `.ico`. Spawn `cimatron-api:icon-creator` in convert mode against that source; output filename stays `icon.ico` so no plugin-class edit is needed.
-   - **Keep the placeholder.** Leave `icon.ico` alone; the plugin builds and runs identically. The user can run `cimatron-api:icon-creator` later from inside the project folder to swap it out.
+   - **Have Claude design one based on the plugin's purpose** (recommended for new plugins). If chosen, ask one follow-up: "Briefly, what does this plugin do?" Build a procedural-design brief from `<ApiName>`, the resolved `<MenuPath>`, and the user's one-line description, then spawn the `cimatron-api:icon-creator` agent with that brief. Explicitly tell the agent to write `<ApiName>.ico` at the project root (matching the template's per-plugin filename and the wired `IconSource` path), draw procedurally with GDI+, and verify the `.ico` magic + 32×32 size.
+   - **Use an existing image.** Ask for an absolute path to a PNG/JPG/BMP/GIF or existing `.ico`. Spawn `cimatron-api:icon-creator` in convert mode against that source; pass `<ApiName>.ico` as the output filename so the existing `IconSource` wiring keeps working without a plugin-class edit.
+   - **Keep the placeholder.** Leave `<ApiName>.ico` alone; the plugin builds and runs identically. The user can run `cimatron-api:icon-creator` later from inside the project folder to swap it out.
 
    Default to **keep the placeholder** if the user dismisses or doesn't pick. Don't loop — one ask, one outcome. Don't try to invent a description for the user; if they don't have one, fall back to the letter-fallback mode of icon-creator (1–2 uppercase characters drawn from `<ApiName>`) and warn that the result is a placeholder.
 

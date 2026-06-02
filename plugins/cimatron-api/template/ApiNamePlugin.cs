@@ -11,7 +11,7 @@ namespace ApiName
         public CimUIInfrastructure.PlugIn.ApiCommand AppendCommand()
         {
             string pluginDir = GetExecutionPath();
-            string icoPath = Path.Combine(pluginDir, "icon.ico");
+            string icoPath = Path.Combine(pluginDir, "ApiName.ico");
             EnsureToolbarIconCache(icoPath);
 
             var command = new CimUIInfrastructure.PlugIn.ApiCommand

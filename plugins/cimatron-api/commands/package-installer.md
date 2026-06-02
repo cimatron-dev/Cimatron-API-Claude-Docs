@@ -3,7 +3,7 @@ description: Package the current Cimatron API plugin as a single .exe installer 
 argument-hint: [--configuration <Debug|Release>] [--out <dir>] [--no-uninstall] [--target-version <2024.0|2025.0|2026.0|any>]
 ---
 
-Package the Cimatron API plugin in the current working directory into a single self-contained `.exe` installer that an end-user can run on their own machine. The installer bundles the plugin DLL (and `icon.ico`) as embedded resources, self-elevates via UAC, detects the user's installed Cimatron, copies the DLL into `<CimatronRoot>\Program\`, and writes the `[Plugin Ext Commands]` entry into `ExternalCommands.ini`. Running it again with `/uninstall` reverses both steps.
+Package the Cimatron API plugin in the current working directory into a single self-contained `.exe` installer that an end-user can run on their own machine. The installer bundles the plugin DLL (and the per-plugin `<ApiName>.ico`, with a legacy-`icon.ico` fallback for older projects) as embedded resources, self-elevates via UAC, detects the user's installed Cimatron, copies the DLL into `<CimatronRoot>\Program\`, and writes the `[Plugin Ext Commands]` entry into `ExternalCommands.ini`. Running it again with `/uninstall` reverses both steps.
 
 Arguments: $ARGUMENTS
 

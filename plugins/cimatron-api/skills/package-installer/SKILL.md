@@ -7,7 +7,7 @@ Build a redistributable installer EXE for a Cimatron 2026 plugin. The output is 
 
 1. Self-elevates via a UAC `requireAdministrator` manifest (no manual `Run as administrator`-clicking required by the end-user — Windows shows the consent prompt automatically when they launch the EXE).
 2. Detects installed Cimatron versions under `C:\Program Files\Cimatron\Cimatron\<version>\Program\`.
-3. Copies the plugin DLL (and `icon.ico`, plus any extra `Payload/` files) into the chosen Cimatron's `Program\` folder.
+3. Copies the plugin DLL (and the per-plugin `<ApiName>.ico` — falling back to a legacy `icon.ico` for older projects — plus any extra `Payload/` files) into the chosen Cimatron's `Program\` folder.
 4. Edits `C:\ProgramData\Cimatron\Cimatron\<version>\Data\ExternalCommands.ini` to add an entry under `[Plugin Ext Commands]` keyed by the plugin's `ICimApiCommandPlugin` class.
 5. Reports what it did and exits.
 
@@ -106,7 +106,7 @@ A plugin can opt out of (1) by removing the helper from `AppendCommand`, and out
 
 ## Edge cases worth being explicit about
 
-- **Multiple plugins, one shared `icon.ico`:** The Cimatron 2026 plugin template ships every plugin with an `icon.ico` next to the DLL. When two installers both deploy an `icon.ico` to `<root>\Program\`, the second overwrites the first. This matches the dev `/build` behavior (where each F5 deploy overwrites the shared file) and isn't a bug in the installer. If a developer wants per-plugin icons that don't clobber each other, they have to rename their icon at packaging time (`<ApiName>.ico`) and update the `IconSource` line in their `<ApiName>Plugin.cs`. The installer doesn't do that rename automatically — it copies whatever filename it received in `Payload/`. The same rename should be applied to the sibling `<basename>.png` cache so the two stay paired.
+- **Legacy `icon.ico` from a pre-rename plugin:** Older plugins (scaffolded before the template switched to per-plugin `<ApiName>.ico`) still ship a generic `icon.ico`. Two such plugins installed side-by-side overwrite each other's icons in `<root>\Program\`. The installer copies whatever filename it received in `Payload/` — it doesn't rename on the fly. Recommended fix on the dev side: rename the file to `<ApiName>.ico`, update the `IconSource` line in `<ApiName>Plugin.cs` and the `<Content Include>` in the csproj, and (if present) rename the sibling `<basename>.png` cache too. New projects scaffolded from `/new-cimatron-api` ship the per-plugin name by default and don't hit this.
 - **End-user has only a 2024.0 install but the installer was packaged with `--target-version 2026.0`:** the installer exits with code 2 and prints which version it expected vs what's installed. The fix is to repackage from the dev side with a different `--target-version`, not to teach the installer to downgrade-deploy.
 - **End-user runs the installer on a machine without .NET Framework 4.8:** the EXE won't start (Windows will offer to install the framework). This is rare in practice — Cimatron itself requires .NET 4.8, so any machine that has Cimatron has the framework. We don't try to bundle the framework.
 - **End-user runs the installer twice in a row:** install is idempotent. The second run overwrites the DLL (same content), the INI line is found and rewritten in place (no duplicates), and the user sees the same success summary. No "already installed" detection — it's cheaper and more reliable to just re-deploy.

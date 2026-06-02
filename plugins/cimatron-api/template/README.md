@@ -23,7 +23,7 @@ A Cimatron 2026 API plugin scaffolded from `dotnet new cimatron-api`.
 
 - `ApiNamePlugin.cs` — implements `ICimApiCommandPlugin`. Controls the toolbar/menu/caption/icon. Edit `MenuPath`, `Caption`, etc. to change how the command appears.
 - `ApiNameCommand.cs` — implements `ICimWpfCommand`. `OnCommand` is called when the user clicks the toolbar button. Put your feature logic there.
-- `icon.ico` — replace this file with your own 16x16 or 32x32 ICO to change the toolbar icon.
+- `ApiName.ico` — replace this file with your own 16x16 or 32x32 ICO to change the toolbar icon. The filename is per-plugin on purpose: every plugin deploys into the shared `<CimatronRoot>\Program\` folder, so a generic `icon.ico` would clobber other plugins' icons on install.
 
 ## Adding more commands
 

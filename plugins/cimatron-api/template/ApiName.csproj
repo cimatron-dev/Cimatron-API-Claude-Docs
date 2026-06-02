@@ -59,7 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="icon.ico">
+    <Content Include="ApiName.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

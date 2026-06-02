@@ -39,7 +39,7 @@ The plugin layout you work against is the one produced by `/new-cimatron-api`:
 - An `<ApiName>Plugin.cs` implementing `CimUIInfrastructure.PlugIn.ICimApiCommandPlugin` with `AppendCommand()` (singular) returning a single `ApiCommand`.
 - An `<ApiName>Command.cs` implementing `CimUIInfrastructure.Commands.ICimWpfCommand` (the executor).
 - A `helpers/Logger.cs` with `LogInfo`/`LogException`-style helpers under the project namespace.
-- `icon.ico` at the project root, wired via `IconSource = new CimWpfContracts.WpfImageIdentifier(Path.Combine(GetExecutionPath(), "icon.ico"), CimWpfContracts.ImageSize.Small)`.
+- A per-plugin `<AssemblyName>.ico` at the project root, wired via `IconSource = new CimWpfContracts.WpfImageIdentifier(Path.Combine(GetExecutionPath(), "<AssemblyName>.ico"), CimWpfContracts.ImageSize.Small)`. The template historically emitted a generic `icon.ico`, which is a deploy footgun (see the icon-naming rule below) — when extending an existing project, prefer renaming to the assembly-scoped form rather than perpetuating the generic name.
 
 When the user is on this template, you extend it; you don't restructure it. When you need to *change* the entry-point shape (e.g. add a second command, switch to COM), the change is surgical and reversible.
 
@@ -57,8 +57,9 @@ Apply these rules to every command class you write, scaffold, or audit:
   finally { Logger.LogInfo("<Command> finished"); }
   ```
   Use the project's own `Logger` (in the `<Namespace>.Helpers` namespace from the template). Don't call `Console.WriteLine`, `Debug.WriteLine`, or `Trace.WriteLine`. Don't catch with `Logger.LogError(ex.Message)` — `LogException(ex, …)` preserves the stack and inner exceptions.
+- **Icon filename is per-plugin, not generic `icon.ico`.** Every plugin's `GetExecutionPath()` resolves to the shared `<CimatronRoot>\Program\` folder, so two plugins that both ship `icon.ico` clobber each other on deploy. Default to `<AssemblyName>.ico` (e.g. `MoldCheck.ico`). When writing or restructuring the entry-point class, set `IconSource = new CimWpfContracts.WpfImageIdentifier(Path.Combine(GetExecutionPath(), "<AssemblyName>.ico"), …)` and ensure the `.ico` file and the `<Content Include>` in the csproj match. If you encounter an existing project still shipping `icon.ico`, surface the collision risk to the user before perpetuating the generic name. Hand off actual icon image work to the `icon-creator` agent, but make sure your scaffold uses the per-plugin filename.
 
-These three rules apply regardless of pattern (Plugin vs COM).
+These four rules apply regardless of pattern (Plugin vs COM).
 
 ## Patterns this agent handles
 
@@ -223,6 +224,7 @@ For Cimatron type lookups (interfaces, enums, what `IsBelongToDoc` types are ava
    - Every visible string ≤20 chars (except `Description`).
    - Menu path starts with `"API\n"`.
    - Every entry-point body has the logging bookend.
+   - Icon filename is `<AssemblyName>.ico` (not the generic `icon.ico`); the `IconSource` path, the file on disk, and the csproj `<Content Include>` all agree.
    - No `Console.WriteLine` / `Debug.WriteLine` / new NuGet packages introduced.
    - Templates/placeholders (`__MENU_PATH__`, `<short>`, `<RootNamespace>`, `<CommandName>`) are all resolved to real values.
    - For COM switches: the csproj has `<RegisterForComInterop>` and the class has `[ComVisible(true)]` + `[Guid(...)]`.
