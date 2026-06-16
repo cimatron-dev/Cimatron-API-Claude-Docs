@@ -146,7 +146,3 @@ paste full multi-KB stack traces into the conversation.
 - `[[command-standard]]` — the entry-point bookend convention this skill
   reads. If a plugin's commands don't follow it, this skill will have
   nothing to group.
-- `[[drive-cimatron-com]]` — drives Cimatron's modeler API headlessly via
-  registration-free COM (the replacement for the old CadCimAiShell harness).
-  Run modeler operations or the plugin in Cimatron, then `/logs` reads what
-  it wrote.
