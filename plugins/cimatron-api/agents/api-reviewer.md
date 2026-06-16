@@ -52,6 +52,7 @@ Identify the command pattern first, then inspect the right surface:
 Then:
 
 - **Menu path first segment must be `"API"`** — `MenuPath` (Plugin) or `GetMenuPath()` return (COM). Strict equality on the segment before the first `\n`. Anything else → **Should fix**. The template's `__MENU_PATH__` placeholder left unresolved → **Critical** (the project won't load with that string).
+- **Menu path separator must be exactly `\n`** — the two-character C# escape (backslash + letter `n`). Flag any other separator between segments: a `/` between segments → **Should fix** (compiles, but won't nest into a submenu); a `\` not immediately followed by `n` (e.g. `"API\Mold"`) → **Critical** (invalid C# escape, won't compile under C# 7.3); no separator at all in a path that clearly wants a submenu → **Should fix**. See COMMAND-STANDARD.md rule 1.
 - **User-visible strings ≤ ~20 characters.** Applies to:
   - Plugin: `Name`, each `MenuPath` segment, `ToolbarName`, `Caption`, `ToolTip`.
   - COM: `GetCommandName`, each `GetMenuPath` segment, `GetCategoryName`, `GetToolbarName`, `GetPrompt`, `GetTooltip`.

@@ -17,7 +17,7 @@ A Cimatron 2026 API plugin scaffolded from `dotnet new cimatron-api`.
    - Verify it's running elevated (`check-admin` task)
    - `dotnet build` the project, dropping `ApiName.dll` directly into the Cimatron Program folder
    - Launch `CimatronE.exe` and attach the managed (`clr`) debugger
-4. In Cimatron, open or create a Part/Assembly. The plugin command appears under the `APIs` toolbar.
+4. In Cimatron, open or create a Part/Assembly. The plugin command appears under the `API` toolbar.
 
 ## Customizing the command
 

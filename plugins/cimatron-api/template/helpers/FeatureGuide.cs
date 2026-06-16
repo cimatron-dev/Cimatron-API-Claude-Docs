@@ -150,7 +150,6 @@ namespace ApiName.Helpers
         public IEntityFilter m_EnttFilter;
         protected long m_EntityCnt = int.MaxValue;
         protected IFilterPoint m_PointFilter;
-        protected IMdlrModel m_MdlrModel;
         protected ICimDocument m_aDoc;
 
         public FeatureGuidEntityList FeatureGuidEntityList { get; set; }
@@ -158,7 +157,6 @@ namespace ApiName.Helpers
         public FG_Stage(ICimDocument aDoc, List<EntityEnumType> filterTypes)
         {
             m_aDoc = aDoc;
-            m_MdlrModel = (IMdlrModel)((IModelContainer)aDoc).Model;
             FeatureGuidEntityList = new FeatureGuidEntityList();
             CreateFilters(filterTypes);
         }
@@ -242,7 +240,7 @@ namespace ApiName.Helpers
 
         private IEntityFilter Createfilter(List<EntityEnumType> filters)
         {
-            var query = (IEntityQuery)m_MdlrModel;
+            var query = (IEntityQuery)((IModelContainer)m_aDoc).Model;
             var aFilter = (FilterType)query.CreateFilter(EFilterEnumType.cmFilterEntityType);
             foreach (var t in filters)
             {

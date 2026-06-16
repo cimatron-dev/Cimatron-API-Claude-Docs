@@ -11,7 +11,7 @@ Arguments: $ARGUMENTS
 
 1. **Parse arguments.**
    - `<ApiName>` is required. Must be a valid C# identifier: starts with a letter, contains only letters/digits/underscores. If invalid, stop and tell the user to pick a different name.
-   - Default `--menu` to `"APIs\n<ApiName>"` if not provided.
+   - Default `--menu` to `"API\n<ApiName>"` if not provided.
    - `--cimatron-root` — if **not** provided, leave it empty for now; Step 1.5 below will pick a value from the installed Cimatron versions. If **provided**, use it verbatim and **do not include a trailing backslash** — PowerShell parses `\"` inside a quoted arg as an escaped quote, so `"...\Program\"` gets passed to `dotnet new` as `...\Program"` (stray quote, no backslash). The template's `Directory.Build.props` normalizes either form, but the no-trailing-backslash default avoids the trap entirely.
    - `--skip-env-check` (optional flag) — skip the prerequisite check in Step 1.5. Use only when the user has already run `/setup-env` and knows their machine is ready, or when running in a noninteractive environment.
 

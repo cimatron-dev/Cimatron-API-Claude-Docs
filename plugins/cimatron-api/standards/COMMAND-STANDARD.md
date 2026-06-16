@@ -10,6 +10,8 @@ The rules below currently also live, nearly verbatim, in four agent files (see [
 
 **Rule.** The first `\n`-separated segment of a command's `MenuPath` (Plugin pattern) or `GetMenuPath()` return (COM pattern) must be the literal string `"API"`. Format: `"API" + "\n" + "..short group.."`. Real values: `"API\nTools"`, `"API\nMold"`, `"API\nNC"`. The scaffolder's menu-path placeholder token must be resolved before shipping.
 
+**The segment separator is the two-character C# escape `\n`** — a backslash followed by the letter `n`, which the compiler turns into a newline. It is **not** a forward slash (`/`), **not** a bare backslash (`\`), and the `n` is **not** optional. Dropping the `n` (`"API\Mold"`) is the single most common menu-path mistake: `\M` is an invalid escape sequence and won't compile under the project's C# 7.3 / net48, and even where it does compile it does not nest the command into a submenu.
+
 **Why.** The `"API"` root is the contract Cimatron's UI uses to surface third-party API plugins together under one top-level menu. Any other first segment leaves the command in an inconsistent place; an unresolved menu-path placeholder will fail to load at all (api-scaffold.md:43, api-reviewer.md:54).
 
 **Good — Plugin pattern**
@@ -29,6 +31,9 @@ public string GetMenuPath() => "API" + "\n" + "Mold";
 
 ```csharp
 cmd.MenuPath = "Tools\nMyPlugin";       // wrong root segment
+cmd.MenuPath = "API\Mold";              // dropped the 'n' — invalid C# escape, won't compile
+cmd.MenuPath = "API/Mold";              // forward slash — does not nest into a submenu
+cmd.MenuPath = "APIMold";               // separator missing entirely
 cmd.MenuPath = "..MENU PATH placeholder..";  // scaffolder placeholder not resolved
 ```
 

@@ -15,7 +15,7 @@
     "menuPath": {
       "type": "parameter",
       "datatype": "string",
-      "defaultValue": "APIs\\n<ApiName>",
+      "defaultValue": "API\\n<ApiName>",
       "replaces": "__MENU_PATH__",
       "description": "Toolbar/menu path shown in Cimatron. Use \\n to separate menu and submenu."
     },

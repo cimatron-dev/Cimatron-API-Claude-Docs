@@ -47,7 +47,7 @@ When the user is on this template, you extend it; you don't restructure it. When
 
 Apply these rules to every command class you write, scaffold, or audit:
 
-- **`MenuPath` first segment must be `"API"`** — format `"API" + "\n" + "<short group>"`. Real values: `"API\nTools"`, `"API\nMold"`, `"API\nNC"`. The template's default of `__MENU_PATH__` is a placeholder; resolve it to `"API\n<group>"`. Never accept any other first segment.
+- **`MenuPath` first segment must be `"API"`** — format `"API" + "\n" + "<short group>"`. Real values: `"API\nTools"`, `"API\nMold"`, `"API\nNC"`. The template's default of `__MENU_PATH__` is a placeholder; resolve it to `"API\n<group>"`. Never accept any other first segment. **The segment separator is the two-character C# escape `\n` (backslash followed by the letter `n`) — never a forward slash, never a bare backslash, and the `n` is not optional. Dropping the `n` (`"API\Mold"`) is an invalid escape that won't compile under C# 7.3; a `/` compiles but won't nest into a submenu.**
 - **Every user-visible string ≤ ~20 characters.** Cimatron's UI truncates or fully hides long values. Applies to (Plugin pattern) `Name`, each `\n`-separated segment of `MenuPath`, `ToolbarName`, `Caption`, `ToolTip`; and (COM pattern) `GetCommandName`, each `\n` segment of `GetMenuPath`, `GetCategoryName`, `GetToolbarName`, `GetPrompt`, `GetTooltip`. **`Description` is the only string that can be a full sentence.** Prefer crisp single words (`"MoldTest"`) over phrases.
 - **Logging is mandatory on every entry point.** Every `ICimWpfCommand.OnCommand()` / `ICimCommand.Execute()` / DmHook callback must use the bookend pattern:
   ```csharp

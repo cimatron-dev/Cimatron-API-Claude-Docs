@@ -17,7 +17,7 @@ namespace ApiName
             var command = new CimUIInfrastructure.PlugIn.ApiCommand
             {
                 Name = "ApiName",
-                ToolbarName = "APIs",
+                ToolbarName = "API",
                 MenuPath = "__MENU_PATH__",
                 Caption = "ApiName",
                 ToolTip = "ApiName",
