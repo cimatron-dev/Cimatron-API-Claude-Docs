@@ -120,6 +120,48 @@ Design constraints worth respecting:
 - The icon must read at **16×16** in toolbars, not just 32×32. Keep shapes bold, palettes high-contrast (2–3 colours), avoid fine detail that smears at small sizes.
 - Transparent background unless the user asks otherwise.
 - Match the general visual idiom the user's other plugins use (glance at one if you can find a neighbouring `.ico` in their workspace).
+- **Colour the icon from the native Cimatron palette** — see [Native Cimatron look & feel](#native-cimatron-look--feel) below. A procedural icon that ignores the palette will read as a foreign add-on no matter how well it's drawn.
+
+## Native Cimatron look & feel
+
+The point of an icon is that it looks like it belongs in Cimatron. The canonical source for that is `plugins/cimatron-api/standards/ICON-STANDARD.md` (transcribed from Cimatron's published `Cimatron_Icon-Definition.pdf`). The actionable subset is embedded here so you don't have to read that file at runtime — but you *may* `Read` it for the full per-module table and provenance. **It is the source of truth; when this section and that file diverge, that file wins.**
+
+This applies most to **procedural designs** and **letter fallbacks** (where you choose the colours). For **raster conversion** the source already carries its colours — there you only owe the 16×16-readability check; don't recolour someone's supplied artwork to the palette unless they ask.
+
+### The three goals
+
+Hold every generated icon against these (verbatim from the spec):
+
+1. **Distinctive style** — identifiable at a glance as a "Cimatron/3DXpert icon," not a generic glyph.
+2. **Consistency** — looks like it belongs next to the shipped icon set. The shared palette is what buys this.
+3. **Natural progression** — evolve the current look (subtle depth, a 3D feel); don't reinvent it.
+
+### The 4-tone depth ramp
+
+The "modern depth / 3D look" is produced mechanically: each body uses a **4-tone ramp** — a light top/highlight face, a medium main face, a dark shadowed face, and a dark outline around the silhouette. Shade your shapes Light → Medium → Dark across their faces and stroke the silhouette with Outline. That single technique is what turns a flat glyph into a dimensional object.
+
+Pick the palette by the command's **module** (usually the second `MenuPath` segment / its functional area). Use one palette per distinct object; mix palettes only when the icon depicts genuinely different objects.
+
+| # | Family | Light | Medium | Dark | Outline |
+|---|---|---|---|---|---|
+| 1 | Neutral / grey | `#FCFCFC` | `#EFEFEF` | `#BEBEBE` | `#3C3C3C` |
+| 2 | Green | `#C6ECCB` | `#9FE0A9` | `#40C253` | `#01953F` |
+| 3 | Orange / gold | `#FBE9BC` | `#F7D694` | `#FFA748` | `#ED8733` |
+| 4 | Blue | `#A6D3FF` | `#72B6F8` | `#3083D9` | `#134E90` |
+| 5 | Red | `#FFC5C5` | `#FF9898` | `#E47474` | `#B63C3B` |
+| 6 | Magenta | `#FFEBFE` | `#FF53FF` | *(see ICON-STANDARD.md)* | *(see ICON-STANDARD.md)* |
+
+Common module → palette picks (full table in `ICON-STANDARD.md`): **Die Design → 3 (orange)**; NC → 1, 3, 4, 5; Mold Design → mostly 1/2/3/4 by sub-area; Electrode → 1, 2, 3, 5; Part/Sketcher → 1, 2 (+5 for faces/solid); Assembly / Mesh / Component Operations → 1, 2, 3; 3D Printing → 1, 2, 3. **If the plugin doesn't map to a known module, default to palette 1 (neutral grey) for the body plus one accent palette for its area — and if the area is ambiguous, ask the user rather than guessing a colour.**
+
+For the **letter fallback**, prefer a body in the module's palette (Medium face, Outline stroke) over the generic `#1F1F1F`; fall back to `#1F1F1F` only when no module is known.
+
+### Reads at 16×16
+
+Native icons ship 7 sizes (64/48/40/32/24/20/16) in one resource; in CAD they render in the feature tree at **16×16**. Even though this workflow writes a single 32×32 frame, the *design* must survive 16×16 — bold silhouette, 2–3 tones, no fine interior detail. The Pillow 32×32 preview you already render is necessary but not sufficient; squint-test the silhouette for 16×16 legibility before shipping. (Emitting the full 7-frame set is a deliberate, separate change — not this workflow's default.)
+
+### Badges
+
+For common command verbs, reuse the native badge vocabulary instead of inventing a glyph: **Delete, Add, Save, Edit, Filter, New, Exit arrow, Transform/move, Select, Image, Camera.**
 
 ## Wiring into the project
 
@@ -197,6 +239,7 @@ After the file is on disk:
 - Don't change `Name`, `MenuPath`, signing settings, or any csproj setting that isn't icon-related. This agent is intentionally narrow.
 - Don't generate `Resources.resx` / embedded resource entries. The icon is loaded as a loose file via `Path.Combine(GetExecutionPath(), …)`, not as an embedded resource.
 - Don't auto-reuse anyone else's branded icon. If you don't have a source image, ask the user — don't fall back to a logo from a different project.
+- **Don't draw a procedural or letter icon with off-palette colours.** Cimatron's published scheme is fixed (changing it needs mgmt + marketing buy-in). Pull the body tones from the module's palette in [Native Cimatron look & feel](#native-cimatron-look--feel) and shade with the Light→Medium→Dark→Outline ramp — that's what makes a generated icon read as native. Recolouring a user's *supplied raster* to the palette is the exception: don't, unless they ask.
 - **Don't default the output filename to `icon.ico`** unless the user explicitly asked for it. The shared `Program\` folder turns generic filenames into cross-plugin collisions — per-plugin `<AssemblyName>.ico` is the safe default. See [Inputs you must collect (or infer)](#inputs-you-must-collect-or-infer) item 3.
 - **Don't emit PNG-encoded `.ico` frames.** The WPF toolbar loader handles them, but `System.Drawing.Icon.ToBitmap()` — used by `FeatureGuide.SetBitmap` and `FG_Stage.SetBitmap` — throws on them. BMP frames work everywhere; PNG frames are a half-broken default.
 - **Don't report "done" on the strength of `dotnet build` alone.** Build success doesn't exercise the `System.Drawing` load path. The step-4b `ToBitmap()` check is the verification that catches the failure mode the build doesn't.
