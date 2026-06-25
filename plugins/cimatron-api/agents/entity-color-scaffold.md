@@ -1,6 +1,6 @@
 ---
 name: entity-color-scaffold
-description: Use when the user asks to color, recolor, paint, or set the display color of Cimatron entities (faces, edges, curves, surfaces, bodies) from an API plugin — e.g. "color these faces red", "set the part color", "why is my color coming out wrong / not showing", "add a color helper to this plugin". Scaffolds a self-contained `helpers/EntityColor.cs` (the `cmAttColor` attribute pattern, edit-in-place) and wires the call into the right place. For adding faces to a named set, use sets-builder; for the multi-stage pick UI that feeds colored selections, use feature-guide-scaffold.
+description: Use when the user asks to color, recolor, paint, or set the display color of Cimatron entities (faces, edges, curves, surfaces, bodies) from an API plugin — e.g. "color these faces red", "set the part color", "why is my color coming out wrong / not showing", "add a color helper to this plugin". Scaffolds a self-contained `helpers/EntityColor.cs` (the `cmAttColor` attribute create-and-attach pattern) and wires the call into the right place. For adding faces to a named set, use sets-builder; for the multi-stage pick UI that feeds colored selections, use feature-guide-scaffold.
 tools: Read, Write, Edit, Glob, Grep, Bash
 model: sonnet
 ---
@@ -16,13 +16,13 @@ Before any edit:
 
 ## The coloring pattern is canonical — load it, don't reinvent it
 
-Read `${CLAUDE_PLUGIN_ROOT}/snippets/entity-color.md` for the authoritative `helpers/EntityColor.cs` (the `Apply` / `Clear` / `Rgb` helper), the color-int format, and the "why it goes wrong" table. Emit that helper close to verbatim — only the namespace and (if the project's logger differs) the `LogException` calls change. Do **not** simplify out its three load-bearing details:
+Read `${CLAUDE_PLUGIN_ROOT}/snippets/entity-color.md` for the authoritative `helpers/EntityColor.cs` (the `Apply` / `Clear` / `Rgb` helper), the color-int format, and the "why it goes wrong" table. Emit that helper close to verbatim — only the namespace and (if the project's logger differs) the `LogException` calls change. Do **not** simplify out its load-bearing details:
 
-- **Edit in place.** If the entity already has a `cmAttColor`, fetch it and set its `Value`. Only `Create`+`Attach` a new attribute when the entity has none. Don't detach-and-reattach to change an existing color.
-- **`GetAttribute` throws when absent.** It raises `COMException` for an entity with no color — it does not return null. The lookup must be wrapped in `try/catch (COMException)` and the throw treated as "none". This is also why the create path is needed.
-- **On the create path, set `Value` before `Attach`.** And on the create path only — for an already-attached attribute you set `Value` directly.
+- **Always `Create`+`Attach` — don't get-before-create.** For every entity, `Create` a `cmAttColor` (empty name `""`), set its `Value`, and `Attach` it. `Attach` **replaces** the entity's single (unnamed) color attribute, so it works whether or not the entity was already colored. Do **not** fetch the existing attribute and edit its `Value` in place — that was tried and does not repaint reliably.
+- **Set `Value` before `Attach`.** Setting it after `Attach` leaves the new color not showing.
+- **`GetAttribute` throws when absent.** It raises `COMException` for an entity with no color — it does not return null. `Apply` avoids it entirely, but `Clear` (and any read-back) must wrap the lookup in `try/catch (COMException)` and treat the throw as "none".
 
-And the color int is Cimatron's `0xRRGGBB` (`(R<<16)|(G<<8)|B`), **not** Win32 `COLORREF` / `Color.ToArgb()` (`0xBBGGRR`) — feeding the wrong order swaps red and blue. Use the `Rgb(r,g,b)` helper.
+And the color int is a Win32 **`COLORREF`** — `0x00BBGGRR`, i.e. `R | (G<<8) | (B<<16)`, R in the *low* byte — **not** `0xRRGGBB`. (Runtime-confirmed: `0xFF0000` renders blue.) `System.Drawing.Color.ToArgb()` is `0x00RRGGBB` (opposite order) so don't feed it straight in; building the int with the `Rgb(r,g,b)` helper gets the order right.
 
 ## Why coloring is simpler than sets / filters
 
@@ -47,7 +47,7 @@ If the user hasn't said, infer from the project and ask only what's missing:
 | edit to the call-site class | One `Helpers.EntityColor.Apply(entities, colorRef)` call wired into `OnApply` / `OnCommand` / wherever the entities are known. |
 | edit to the csproj | A `<Compile Include="helpers\EntityColor.cs" />` entry — this template uses explicit compile lists; globs won't pick it up. |
 
-If the project already has a `helpers/EntityColor.cs`, **edit it** rather than overwriting — the user may have customized it. Reconcile against the snippet's three load-bearing details and fix any that drifted (that drift is usually the bug).
+If the project already has a `helpers/EntityColor.cs`, **edit it** rather than overwriting — the user may have customized it. Reconcile against the snippet's load-bearing details (always create+attach, `Value` before `Attach`, `COLORREF` color int) and fix any that drifted — in particular a get-before-create/edit-in-place `Apply` or a `0xRRGGBB` color int, which are the usual bugs.
 
 ## The call site
 
@@ -68,17 +68,17 @@ In a Feature Guide, color from the **commit path** (`OnApply` / `OnOk`), not fro
 
 - `helpers/EntityColor.cs` has a `<Compile Include>` entry in the csproj.
 - The file's alias block pins the shared interop types per the project CLAUDE.md if it imports both interop namespaces (it imports only `interop.CimBaseAPI` plus the `ICimEntity` alias, so it usually needs no extra aliases — confirm).
-- The lookup is `try/catch (COMException)` → treat as none; existing attribute is edited in place; create path sets `Value` before `Attach`.
-- Colors are built with `Rgb(r,g,b)`, never a raw `Color.ToArgb()`.
+- `Apply` colors every entity by `Create(cmAttColor, "")` → set `Value` → `Attach` (`Value` before `Attach`), with no get-before-create / edit-in-place. `Clear` wraps `GetAttribute` in `try/catch (COMException)`.
+- Colors are built with `Rgb(r,g,b)` (`COLORREF` order), never a raw `Color.ToArgb()`.
 - Logging matches the host project (`LogException(ex, "...")`, not `LogError(ex.Message)`).
 - No model (`IMdlrModel` / NC model) dependency crept into the color path.
 - No new NuGet packages or project references.
 
 ## Things to avoid
 
-- **Don't detach-and-reattach to change an existing color.** Edit the existing `cmAttColor`'s `Value` in place; `Create`+`Attach` only when none exists.
-- **Don't assume `GetAttribute` returns null when absent** — it throws `COMException`. Always guard it.
-- **Don't pass a Win32 `COLORREF` / `Color.ToArgb()`** — convert to `0xRRGGBB` via `Rgb(r,g,b)`.
+- **Don't get-before-create or edit an existing `cmAttColor`'s `Value` in place** — it doesn't repaint reliably. Always `Create`+`Attach`; `Attach` replaces the entity's single color attribute.
+- **Don't assume `GetAttribute` returns null when absent** — it throws `COMException`. Guard it wherever you call it (`Clear`, read-back).
+- **Don't build the color as `0xRRGGBB` or pass `Color.ToArgb()` straight in** — Cimatron wants a Win32 `COLORREF` (`0x00BBGGRR`). Use `Rgb(r,g,b)`.
 - **Don't route coloring through the model.** It's pure entity + application attribute work; keep it Part/NC neutral.
 - **Don't color from per-pick events in a Feature Guide.** Defer to the `OnApply` / `OnOk` commit path.
 - **Don't add explanatory XML doc comments** beyond the snippet's terse `//` notes. Cimatron API code in this repo stays terse.

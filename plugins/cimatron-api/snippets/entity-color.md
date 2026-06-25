@@ -1,29 +1,33 @@
 This is the canonical Cimatron entity-coloring snippet. It is loaded by the `entity-color-scaffold` agent verbatim when adding color support to a plugin. Edit here, not in the agent.
 
-Derived from a verified working implementation (`ManufacturingPlanning/MfgPlanStage.cs!ApplyFaceColor`, itself cribbed from `ExportNcAdvanced.dll!AttributeHandler.attachAttributes`). One deliberate divergence from that reference: where it detached the existing `cmAttColor` and attached a fresh one, this snippet **edits the existing attribute's `Value` in place** and only `Create`+`Attach`es when the entity has no color yet. The gotchas in the "Why it goes wrong" section are the actual causes of "Cimatron colored the entity wrong / not at all" — bake them in, don't simplify them out.
+Derived from the verified working implementations `OccToCimatron/Core/Exchange.cs!SetEntityColor` and `FaceColorTool` (runtime-confirmed in Cimatron 2026). The write is dead simple: for every entity, `Create` a `cmAttColor` (empty name), set its `Value`, and `Attach`. `Attach` **replaces** the entity's single (unnamed) color attribute, so there's no need to look up an existing one first — it works whether or not the entity was already colored. An earlier version of this snippet tried to edit an existing attribute's `Value` in place and only `Create`+`Attach` when none existed; that path did **not** repaint reliably, so don't reintroduce it. The gotchas in the "Why it goes wrong" section are the actual causes of "Cimatron colored the entity wrong / not at all" — bake them in, don't simplify them out.
 
 ## How coloring works
 
 A display color in Cimatron is a `cmAttColor` **attribute** attached to an entity, not a property you set. You:
 
 1. Get the `IAttributeFactory` from the application (once per batch — it's not per-entity).
-2. For each entity, look for its existing `cmAttColor` attribute. **If it has one, just set that attribute's `Value`** to the packed color int. **If it doesn't, `Create` one, set its `Value`, and `Attach` it.** Don't detach-and-reattach when a color is already present — edit it in place.
+2. For each entity, `Create` a `cmAttColor` attribute (empty name `""`), set its `Value` to the packed color int, then `Attach` it via the entity's `IAttributeSink`. `Attach` replaces the entity's single (unnamed) color attribute, so this is correct whether or not the entity is already colored — you do **not** need to look up the existing attribute or edit it in place.
 
 Coloring touches **only** the entity and the application — it does **not** go through the model (`IMdlrModel` / NC model), so the same code works for Part and NC documents without any per-context cast. (Contrast with sets / filters, which do need the model — see `sets-builder`.)
 
 ## The color int format — get this right or red/blue swap
 
+`cmAttColor.Value` is a packed Win32 **`COLORREF`** int — `0x00BBGGRR`, with **R in the low byte and B in the high byte**:
+
 ```
-colorRef = (R << 16) | (G << 8) | B      // i.e. 0xRRGGBB, R in the high byte
+colorRef = R | (G << 8) | (B << 16)      // i.e. 0x00BBGGRR, Win32 COLORREF
 ```
 
-Example: R=255 G=80 B=0 → `(255 << 16) | (80 << 8) | 0` → `0xFF5000`.
+Example: R=255 G=80 B=0 → `255 | (80 << 8) | (0 << 16)` → `0x0050FF`.
 
-This is **NOT** the Win32 `COLORREF` / `RGB()` byte order (`0x00BBGGRR`, R in the *low* byte). If you feed a Win32 `COLORREF` or `System.Drawing.Color.ToArgb()` straight in, red and blue come out swapped — a classic "the color is wrong" symptom. Convert explicitly:
+This was runtime-confirmed in Cimatron 2026: feeding `0xFF0000` painted the entity **blue**, proving B is the high byte. It is **NOT** `0xRRGGBB`, and it is **NOT** a Cimatron palette index (small ints like 3/5/9 decode near `0x000000` and render jet black — that's the tell that the field is a packed RGB, not an index).
+
+`System.Drawing.Color.ToArgb()` gives `0x00RRGGBB` (R high), which is the *opposite* order — feeding it straight in swaps red and blue. Convert explicitly:
 
 ```csharp
 // From a System.Drawing.Color:
-int colorRef = (c.R << 16) | (c.G << 8) | c.B;
+int colorRef = c.R | (c.G << 8) | (c.B << 16);
 ```
 
 ## The helper (`helpers/EntityColor.cs`)
@@ -44,10 +48,10 @@ namespace <YourNamespace>.Helpers
     // touch the model, so this is Part/NC neutral.
     internal static class EntityColor
     {
-        // Pack an RGB triple into Cimatron's color int (0xRRGGBB). NOT Win32 COLORREF.
-        public static int Rgb(int r, int g, int b) => (r << 16) | (g << 8) | b;
+        // Pack an RGB triple into Cimatron's color int (Win32 COLORREF, 0x00BBGGRR).
+        public static int Rgb(int r, int g, int b) => r | (g << 8) | (b << 16);
 
-        // Set the display color of every entity in the list to colorRef (0xRRGGBB).
+        // Set the display color of every entity in the list to colorRef (0x00BBGGRR).
         public static void Apply(IEnumerable<ICimEntity> entities, int colorRef)
         {
             try
@@ -60,27 +64,13 @@ namespace <YourNamespace>.Helpers
                 {
                     try
                     {
-                        var attrSink = (IAttributeSink)entity;
-
-                        // Reuse the entity's existing color attribute if it has one.
-                        // GetAttribute THROWS COMException when absent — it does not
-                        // return null — so treat the throw as "no existing color".
-                        IAttribute attr = null;
-                        try { attr = attrSink.GetAttribute(AttributeEnumType.cmAttColor, ""); }
-                        catch (COMException) { attr = null; }
-
-                        if (attr != null)
-                        {
-                            // Already coloured — just set the value in place.
-                            attr.Value = colorRef;
-                        }
-                        else
-                        {
-                            // None yet — create, set value, then attach.
-                            attr = attrFactory.Create(AttributeEnumType.cmAttColor, "");
-                            attr.Value = colorRef;
-                            attrSink.Attach(attr);
-                        }
+                        // Create a fresh cmAttColor (empty name), set Value, then Attach.
+                        // Attach REPLACES the entity's single color attribute, so this
+                        // works whether or not the entity was already colored — no
+                        // get-before-create needed. Always set Value before Attach.
+                        var attr = attrFactory.Create(AttributeEnumType.cmAttColor, "");
+                        attr.Value = colorRef;
+                        ((IAttributeSink)entity).Attach(attr);
                     }
                     catch (Exception ex)
                     {
@@ -135,15 +125,15 @@ Helpers.EntityColor.Apply(pickedFaces, Helpers.EntityColor.Rgb(255, 80, 0));
 
 | Symptom | Cause | Fix baked into the helper |
 |---|---|---|
-| `GetAttribute` blows up / the whole batch aborts | `GetAttribute` **throws `COMException`** when the entity has no color yet (it does not return null) | Wrap the lookup in `try/catch (COMException)` and treat the throw as "none" |
-| New color won't attach | Called `Attach` on an entity that already has a `cmAttColor` (duplicate/refused) | Only `Create`+`Attach` when none exists; when one exists, set `Value` on it in place |
-| Color set on a new attribute doesn't show | On the **create** path, `Value` set **after** `Attach` | On the create path, set `Value` **before** `Attach` |
-| Red and blue swapped | Passed a Win32 `COLORREF` / `Color.ToArgb()` (`0xBBGGRR`) instead of Cimatron's `0xRRGGBB` | Build the int with `Rgb(r,g,b)` = `(r<<16)|(g<<8)|b` |
+| Recoloring an already-colored entity doesn't take | Tried to fetch the existing `cmAttColor` and edit its `Value` in place — that doesn't repaint reliably | Always `Create`+`Attach` a fresh attribute; `Attach` replaces the entity's single color attribute |
+| Color set on the attribute doesn't show | `Value` set **after** `Attach` | Set `Value` **before** `Attach` |
+| Red and blue swapped | Built the int as `0xRRGGBB` (or passed `Color.ToArgb()`, which is `0x00RRGGBB`) instead of Cimatron's Win32 `COLORREF` | Build the int with `Rgb(r,g,b)` = `r\|(g<<8)\|(b<<16)` (`0x00BBGGRR`) |
+| Whole entity is jet black | Passed a tiny int (e.g. a palette index like 3/5/9) — those decode near `0x000000` | The field is a packed RGB, not a palette index; build it with `Rgb(r,g,b)` |
 
-Two more, less common:
+Two more:
 
-- **Re-attaching when a color already exists.** Don't detach-and-reattach to change a color — fetch the existing `cmAttColor` and set its `Value`. `Create`+`Attach` is only for entities with no color yet.
-- **Color set but not visible until something else redraws.** When you color from inside a Feature Guide's `OnApply`/`OnOk`, Cimatron repaints as the interaction commits, so no manual refresh is needed. If you color from a context that doesn't trigger a repaint and the change doesn't show, force a redraw of the view rather than re-touching the attribute — the attribute is already correct.
+- **`GetAttribute` throws when absent.** It raises `COMException` (it does **not** return null) for an entity with no color. The `Apply` path sidesteps this entirely by always creating + attaching, but `Clear` (and any read-back) must wrap `GetAttribute` in `try/catch (COMException)` and treat the throw as "no color".
+- **Color set but not visible until something else redraws.** When you color from a Feature Guide's `OnApply`/`OnOk`, Cimatron repaints as the interaction commits, so no manual refresh is needed. If you color from a context that does **not** commit the interaction — a per-pick event or an SP-button click handler — the change may not show until a redraw. Nudge a redraw of the affected entities (e.g. clear/re-set the document selection) rather than re-touching the attribute, which is already correct.
 
 ## Entity types
 

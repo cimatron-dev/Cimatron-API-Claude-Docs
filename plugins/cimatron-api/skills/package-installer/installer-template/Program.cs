@@ -8,7 +8,7 @@ using System.Text;
 namespace Installer
 {
     // Cimatron API plugin installer. Placeholders are substituted at packaging
-    // time by the /package-installer slash command — do not edit by hand.
+    // time by the /package-installer slash command - do not edit by hand.
     internal static class Program
     {
         private const string ApiName = "@@API_NAME@@";
@@ -18,8 +18,16 @@ namespace Installer
         private const string TargetVersion = "@@TARGET_VERSION@@";
         private const bool HasIcon = @@HAS_ICON@@;
 
-        private const string CimatronInstallRoot = @"C:\Program Files\Cimatron\Cimatron";
-        private const string CimatronProgramDataRoot = @"C:\ProgramData\Cimatron\Cimatron";
+        // Cimatron ships under several product folders beneath these shared bases:
+        // the full CAD product as "Cimatron", and the quoting tool as "Cimatron
+        // DieQuote". Each has its own <version> subfolders under Program Files and
+        // its own mirror under ProgramData. We discover across every known variant
+        // and derive the ProgramData INI path from whichever install the user
+        // targets, so a DieQuote install never gets registered against the full
+        // product's INI (or vice versa).
+        private const string CimatronInstallBase = @"C:\Program Files\Cimatron";
+        private const string CimatronProgramDataBase = @"C:\ProgramData\Cimatron";
+        private static readonly string[] CimatronProductVariants = { "Cimatron", "Cimatron DieQuote" };
 
         private const int ExitOk = 0;
         private const int ExitUserCancelled = 1;
@@ -44,7 +52,9 @@ namespace Installer
                 if (versions.Length == 0)
                 {
                     Console.Error.WriteLine("No usable Cimatron installation found.");
-                    Console.Error.WriteLine($"  Searched: {CimatronInstallRoot}\\<version>\\Program\\");
+                    Console.Error.WriteLine("  Searched:");
+                    foreach (var variant in CimatronProductVariants)
+                        Console.Error.WriteLine($"    {Path.Combine(CimatronInstallBase, variant)}\\<version>\\Program\\");
                     if (!string.Equals(TargetVersion, "any", StringComparison.OrdinalIgnoreCase))
                         Console.Error.WriteLine($"  Required version: {TargetVersion}");
                     return WaitAndReturn(ExitNoMatchingCimatron);
@@ -65,7 +75,7 @@ namespace Installer
             catch (UnauthorizedAccessException ex)
             {
                 Console.Error.WriteLine();
-                Console.Error.WriteLine($"ERROR: access denied — {ex.Message}");
+                Console.Error.WriteLine($"ERROR: access denied - {ex.Message}");
                 Console.Error.WriteLine("This usually means Cimatron is running and holds a file lock,");
                 Console.Error.WriteLine("or the installer was launched without administrator privileges.");
                 return WaitAndReturn(ExitWriteFailed);
@@ -73,7 +83,7 @@ namespace Installer
             catch (IOException ex) when ((uint)ex.HResult == 0x80070020 /* SHARING_VIOLATION */)
             {
                 Console.Error.WriteLine();
-                Console.Error.WriteLine($"ERROR: file locked — {ex.Message}");
+                Console.Error.WriteLine($"ERROR: file locked - {ex.Message}");
                 Console.Error.WriteLine("Close Cimatron and re-run the installer.");
                 return WaitAndReturn(ExitDllLocked);
             }
@@ -88,30 +98,50 @@ namespace Installer
         private static void PrintBanner(bool uninstall)
         {
             Console.WriteLine();
-            Console.WriteLine($"{ApiName} {PluginVersion} — Cimatron API plugin {(uninstall ? "uninstaller" : "installer")}");
+            Console.WriteLine($"{ApiName} {PluginVersion} - Cimatron API plugin {(uninstall ? "uninstaller" : "installer")}");
             Console.WriteLine(new string('-', 60));
         }
 
         private static string[] DiscoverCimatronVersions()
         {
-            if (!Directory.Exists(CimatronInstallRoot))
+            if (!Directory.Exists(CimatronInstallBase))
                 return new string[0];
 
             var matches = new List<string>();
-            foreach (var dir in Directory.GetDirectories(CimatronInstallRoot))
+            foreach (var variant in CimatronProductVariants)
             {
-                string name = Path.GetFileName(dir);
-                if (!IsVersionLikeName(name)) continue;
-                if (!IsAtLeast2024(name)) continue;
-                if (!string.Equals(TargetVersion, "any", StringComparison.OrdinalIgnoreCase)
-                    && !string.Equals(name, TargetVersion, StringComparison.OrdinalIgnoreCase))
-                    continue;
-                string program = Path.Combine(dir, "Program");
-                if (!Directory.Exists(program)) continue;
-                matches.Add(program);
+                string variantRoot = Path.Combine(CimatronInstallBase, variant);
+                if (!Directory.Exists(variantRoot)) continue;
+
+                foreach (var dir in Directory.GetDirectories(variantRoot))
+                {
+                    string name = Path.GetFileName(dir);
+                    if (!IsVersionLikeName(name)) continue;
+                    if (!IsAtLeast2024(name)) continue;
+                    if (!string.Equals(TargetVersion, "any", StringComparison.OrdinalIgnoreCase)
+                        && !string.Equals(name, TargetVersion, StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    string program = Path.Combine(dir, "Program");
+                    if (!Directory.Exists(program)) continue;
+                    matches.Add(program);
+                }
             }
-            matches.Sort((a, b) => string.Compare(InferVersionFromRoot(b), InferVersionFromRoot(a), StringComparison.Ordinal));
+
+            // Newest version first; ties broken by the declared variant order
+            // (full Cimatron ahead of DieQuote) so the default [1] pick is stable.
+            matches.Sort((a, b) =>
+            {
+                int byVersion = string.Compare(InferVersionFromRoot(b), InferVersionFromRoot(a), StringComparison.Ordinal);
+                if (byVersion != 0) return byVersion;
+                return VariantRank(InferVariantFromRoot(a)).CompareTo(VariantRank(InferVariantFromRoot(b)));
+            });
             return matches.ToArray();
+        }
+
+        private static int VariantRank(string variant)
+        {
+            int idx = Array.IndexOf(CimatronProductVariants, variant);
+            return idx < 0 ? int.MaxValue : idx;
         }
 
         private static bool IsVersionLikeName(string s)
@@ -135,6 +165,21 @@ namespace Installer
             return parent != null ? parent.Name : "unknown";
         }
 
+        private static string InferVariantFromRoot(string programFolder)
+        {
+            // <base>\<variant>\<version>\Program -> the <variant> folder name. This is
+            // the same name that appears under ProgramData, so it drives GetIniPath.
+            // Defaults to "Cimatron" for an off-layout --root override.
+            var versionDir = Directory.GetParent(programFolder);
+            var variantDir = versionDir != null ? versionDir.Parent : null;
+            return variantDir != null ? variantDir.Name : "Cimatron";
+        }
+
+        private static string Describe(string programFolder)
+        {
+            return $"{InferVariantFromRoot(programFolder)} {InferVersionFromRoot(programFolder)}";
+        }
+
         private static string NormalizeProgramFolder(string root)
         {
             if (string.IsNullOrWhiteSpace(root)) throw new ArgumentException("--root cannot be empty");
@@ -150,12 +195,12 @@ namespace Installer
         {
             if (candidates.Length == 1)
             {
-                Console.WriteLine($"Target Cimatron: {InferVersionFromRoot(candidates[0])}");
+                Console.WriteLine($"Target Cimatron: {Describe(candidates[0])}");
                 return candidates[0];
             }
             Console.WriteLine("Multiple Cimatron installations found:");
             for (int i = 0; i < candidates.Length; i++)
-                Console.WriteLine($"  [{i + 1}] {InferVersionFromRoot(candidates[i])}   ({candidates[i]})");
+                Console.WriteLine($"  [{i + 1}] {Describe(candidates[i])}   ({candidates[i]})");
             Console.Write($"Pick one [1-{candidates.Length}] (default 1, q to cancel): ");
             string answer = Console.ReadLine();
             if (answer != null && (answer.Trim().Equals("q", StringComparison.OrdinalIgnoreCase)
@@ -164,7 +209,7 @@ namespace Installer
             if (string.IsNullOrWhiteSpace(answer)) return candidates[0];
             if (int.TryParse(answer.Trim(), out int idx) && idx >= 1 && idx <= candidates.Length)
                 return candidates[idx - 1];
-            Console.WriteLine("Unrecognized selection — defaulting to [1].");
+            Console.WriteLine("Unrecognized selection - defaulting to [1].");
             return candidates[0];
         }
 
@@ -186,7 +231,7 @@ namespace Installer
 
             var payload = EnumeratePayload();
             if (payload.Count == 0)
-                throw new InvalidOperationException("Installer is missing its embedded payload — repackage with /package-installer.");
+                throw new InvalidOperationException("Installer is missing its embedded payload - repackage with /package-installer.");
 
             foreach (var entry in payload)
             {
@@ -195,13 +240,13 @@ namespace Installer
                 WritePayloadFile(dest, entry.Value);
             }
 
-            string iniPath = GetIniPath(version);
+            string iniPath = GetIniPath(programFolder, version);
             Console.WriteLine();
             Console.WriteLine($"Registering in {iniPath}");
             UpsertIniEntry(iniPath, PluginClass);
 
             Console.WriteLine();
-            Console.WriteLine($"Done. Launch Cimatron {version} — the new command will appear in the toolbar.");
+            Console.WriteLine($"Done. Launch {Describe(programFolder)} - the new command will appear in the toolbar.");
             if (!HasIcon)
                 Console.WriteLine("(No icon was packaged. The plugin will use whatever IconSource resolves to at runtime.)");
         }
@@ -243,7 +288,7 @@ namespace Installer
                 }
             }
 
-            string iniPath = GetIniPath(version);
+            string iniPath = GetIniPath(programFolder, version);
             Console.WriteLine();
             Console.WriteLine($"De-registering from {iniPath}");
             RemoveIniEntry(iniPath, PluginClass);
@@ -279,9 +324,12 @@ namespace Installer
 
         // ---------------- INI mutation ----------------
 
-        private static string GetIniPath(string version)
+        private static string GetIniPath(string programFolder, string version)
         {
-            return Path.Combine(CimatronProgramDataRoot, version, "Data", "ExternalCommands.ini");
+            // Mirror the install variant into ProgramData: a "Cimatron DieQuote"
+            // install writes to C:\ProgramData\Cimatron\Cimatron DieQuote\<version>\...
+            string variant = InferVariantFromRoot(programFolder);
+            return Path.Combine(CimatronProgramDataBase, variant, version, "Data", "ExternalCommands.ini");
         }
 
         private static void UpsertIniEntry(string iniPath, string pluginClass)
@@ -317,7 +365,7 @@ namespace Installer
         {
             if (!File.Exists(iniPath))
             {
-                Console.WriteLine("  (INI not present — nothing to remove)");
+                Console.WriteLine("  (INI not present - nothing to remove)");
                 return;
             }
 
@@ -325,13 +373,13 @@ namespace Installer
             int sectionStart = FindSection(lines, "[Plugin Ext Commands]");
             if (sectionStart < 0)
             {
-                Console.WriteLine("  ([Plugin Ext Commands] section not found — nothing to remove)");
+                Console.WriteLine("  ([Plugin Ext Commands] section not found - nothing to remove)");
                 return;
             }
             int existing = FindKeyInSection(lines, sectionStart, pluginClass);
             if (existing < 0)
             {
-                Console.WriteLine($"  ({pluginClass} not present — nothing to remove)");
+                Console.WriteLine($"  ({pluginClass} not present - nothing to remove)");
                 return;
             }
             Console.WriteLine($"  removing: {lines[existing]}");
@@ -344,7 +392,7 @@ namespace Installer
             if (!File.Exists(iniPath))
             {
                 enc = new UTF8Encoding(true);
-                // Canonical skeleton mirrors /register-command's skeleton — the
+                // Canonical skeleton mirrors /register-command's skeleton - the
                 // leading comment is what Cimatron's loader uses to recognize the file.
                 return new List<string>
                 {
@@ -369,9 +417,9 @@ namespace Installer
                 enc = new UTF8Encoding(false);
 
             string text = enc.GetString(bytes, 0, bytes.Length);
-            // Strip the BOM character that GetString surfaces when the BOM is present —
+            // Strip the BOM character that GetString surfaces when the BOM is present -
             // we want to preserve newlines but not double-encode the BOM on write.
-            if (text.Length > 0 && text[0] == '﻿') text = text.Substring(1);
+            if (text.Length > 0 && text[0] == '\uFEFF') text = text.Substring(1);
 
             // Preserve line endings: split on \r?\n and remember whether the file ended with one.
             var raw = new List<string>(text.Split('\n'));
@@ -444,13 +492,13 @@ namespace Installer
         {
             // When launched by double-click the console window closes immediately on exit.
             // Pause so the user can read the result. When run from a terminal that's already
-            // open, Environment.UserInteractive is still true — that's the right behavior;
+            // open, Environment.UserInteractive is still true - that's the right behavior;
             // the user just hits Enter to move on.
             if (Environment.UserInteractive)
             {
                 Console.WriteLine();
                 Console.WriteLine("Press Enter to exit...");
-                try { Console.ReadLine(); } catch { /* redirected stdin — ignore */ }
+                try { Console.ReadLine(); } catch { /* redirected stdin - ignore */ }
             }
             return code;
         }

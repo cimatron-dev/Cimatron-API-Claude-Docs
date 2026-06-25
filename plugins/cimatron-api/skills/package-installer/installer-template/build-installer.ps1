@@ -57,7 +57,7 @@ if (-not $ApiName) {
     throw "Could not determine <AssemblyName> or <RootNamespace> from $($Csproj.Name)."
 }
 
-# Sanitize — values get embedded inside C# string literals.
+# Sanitize - values get embedded inside C# string literals.
 if ($ApiName -match '[\\"]' -or $ApiName -notmatch '^[\x20-\x7E]+$') {
     throw "AssemblyName '$ApiName' contains characters illegal in a C# string literal."
 }
@@ -104,11 +104,18 @@ if (Test-Path -LiteralPath $DbpPath) {
         if ($pg.Version -and $DbpVersion -eq '1.0.0') {
             $DbpVersion = ([string]$pg.Version).Trim()
         }
-        if ($pg.CimatronRootPath) {
-            $cand = ([string]$pg.CimatronRootPath).Trim()
-            # Skip the EnsureTrailingSlash normalizer line — we want the literal root.
-            if ($cand -notlike '*EnsureTrailingSlash*' -and $cand -notlike '*$([MSBuild]*') {
+        # CimatronRootPath can appear more than once (the literal value plus the
+        # EnsureTrailingSlash normalizer). Accessing it as a property returns an
+        # XmlElement array, and [string] of that array yields element *names*, not
+        # values. Iterate the elements and read InnerText, taking the first literal
+        # (non-normalizer) value.
+        if (-not $CimatronRootPath) {
+            foreach ($crp in @($pg.SelectNodes('CimatronRootPath'))) {
+                $cand = $crp.InnerText.Trim()
+                if (-not $cand) { continue }
+                if ($cand -like '*EnsureTrailingSlash*' -or $cand -like '*$([MSBuild]*') { continue }
                 $CimatronRootPath = $cand.TrimEnd('"').TrimEnd('\','/')
+                break
             }
         }
     }
@@ -124,7 +131,7 @@ if ($CimatronRootPath) { Write-Host "  CimatronRoot:  $CimatronRootPath" }
 # Pre-flight: CimatronE.exe holds locks on plugin DLLs in its Program folder.
 $cimatronRunning = @(Get-Process -Name 'CimatronE' -ErrorAction SilentlyContinue)
 if ($cimatronRunning.Count -gt 0) {
-    throw "CimatronE.exe is running. Close Cimatron before re-running deploy — the plugin DLL is locked while Cimatron is open."
+    throw "CimatronE.exe is running. Close Cimatron before re-running deploy - the plugin DLL is locked while Cimatron is open."
 }
 
 Write-Host ''
@@ -195,7 +202,7 @@ foreach ($extra in $ExtraPayloadFiles) {
 $ProgramCsPath = Join-Path $StageDir 'Program.cs'
 $InstallerCsprojPath = Join-Path $StageDir 'Installer.csproj'
 
-$programCs = Get-Content -LiteralPath $ProgramCsPath -Raw
+$programCs = [System.IO.File]::ReadAllText($ProgramCsPath, [System.Text.UTF8Encoding]::new($false))
 $programCs = $programCs.Replace('@@API_NAME@@',       $ApiName)
 $programCs = $programCs.Replace('@@DLL_NAME@@',       "$ApiName.dll")
 $programCs = $programCs.Replace('@@PLUGIN_CLASS@@',   $PluginClass)
@@ -204,7 +211,7 @@ $programCs = $programCs.Replace('@@TARGET_VERSION@@', $TargetVersion)
 $programCs = $programCs.Replace('@@HAS_ICON@@',       $(if ($HasIcon) { 'true' } else { 'false' }))
 [System.IO.File]::WriteAllText($ProgramCsPath, $programCs, [System.Text.UTF8Encoding]::new($true))
 
-$installerCsproj = Get-Content -LiteralPath $InstallerCsprojPath -Raw
+$installerCsproj = [System.IO.File]::ReadAllText($InstallerCsprojPath, [System.Text.UTF8Encoding]::new($false))
 $installerCsproj = $installerCsproj.Replace('@@INSTALLER_ASSEMBLY_NAME@@', "$ApiName-Installer")
 $installerCsproj = $installerCsproj.Replace('@@INSTALLER_VERSION@@',       $DbpVersion)
 [System.IO.File]::WriteAllText($InstallerCsprojPath, $installerCsproj, [System.Text.UTF8Encoding]::new($true))
@@ -217,7 +224,7 @@ Push-Location $StageDir
 try {
     & dotnet build 'Installer.csproj' --configuration Release --nologo
     if ($LASTEXITCODE -ne 0) {
-        throw "Installer build failed. The placeholder substitution above probably broke a C# literal — inspect $StageDir\Program.cs."
+        throw "Installer build failed. The placeholder substitution above probably broke a C# literal - inspect $StageDir\Program.cs."
     }
 } finally {
     Pop-Location

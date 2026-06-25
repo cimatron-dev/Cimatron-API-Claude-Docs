@@ -6,9 +6,9 @@ description: Package a built Cimatron API plugin into a single self-elevating `.
 Build a redistributable installer EXE for a Cimatron 2026 plugin. The output is a single net48 console executable that:
 
 1. Self-elevates via a UAC `requireAdministrator` manifest (no manual `Run as administrator`-clicking required by the end-user — Windows shows the consent prompt automatically when they launch the EXE).
-2. Detects installed Cimatron versions under `C:\Program Files\Cimatron\Cimatron\<version>\Program\`.
-3. Copies the plugin DLL (and the per-plugin `<ApiName>.ico` — falling back to a legacy `icon.ico` for older projects — plus any extra `Payload/` files) into the chosen Cimatron's `Program\` folder.
-4. Edits `C:\ProgramData\Cimatron\Cimatron\<version>\Data\ExternalCommands.ini` to add an entry under `[Plugin Ext Commands]` keyed by the plugin's `ICimApiCommandPlugin` class.
+2. Detects installed Cimatron products under `C:\Program Files\Cimatron\<product>\<version>\Program\`, across every known product variant — currently the full CAD product (`Cimatron`) and the quoting tool (`Cimatron DieQuote`).
+3. Copies the plugin DLL (and the per-plugin `<ApiName>.ico` — falling back to a legacy `icon.ico` for older projects — plus any extra `Payload/` files) into the chosen install's `Program\` folder.
+4. Edits the matching `C:\ProgramData\Cimatron\<product>\<version>\Data\ExternalCommands.ini` to add an entry under `[Plugin Ext Commands]` keyed by the plugin's `ICimApiCommandPlugin` class. The `<product>` folder under `ProgramData` is derived from whichever install was chosen, so a DieQuote install is never registered against the full product's INI (or vice versa).
 5. Reports what it did and exits.
 
 Running the same EXE with the `/uninstall` (or `--uninstall`) argument reverses both filesystem and INI changes.
@@ -56,11 +56,13 @@ If UAC is disabled or the user is on a non-interactive account (e.g. an unattend
 
 ### Cimatron version detection
 
-The installer enumerates `C:\Program Files\Cimatron\Cimatron\` for subdirectories whose name matches `^\d{4}\.\d+$` and which contain a `Program\` subfolder. It then filters to `>= 2024.0` (or to `@@TARGET_VERSION@@` exactly if a specific version was baked in at packaging time).
+The installer walks each **product variant** under `C:\Program Files\Cimatron\` — `Cimatron` (full CAD) and `Cimatron DieQuote` (quoting) — for subdirectories whose name matches `^\d{4}\.\d+$` and which contain a `Program\` subfolder. It then filters to `>= 2024.0` (or to `@@TARGET_VERSION@@` exactly if a specific version was baked in at packaging time). The variant list is the `CimatronProductVariants` array in `Program.cs`; add a folder name there if Cimatron ships another product layout.
 
-If exactly one version matches, it's used silently. If multiple match, the installer prints a numbered list and prompts the user to pick one. If zero match, the installer prints an error and exits with code 2.
+Matches are sorted newest-version-first; ties between products on the same version fall back to the declared variant order (full Cimatron ahead of DieQuote), so the default `[1]` pick is deterministic.
 
-It does **not** search alternate drives or custom install roots. If the end-user has a non-default Cimatron location, they can pass `--root "C:\Custom\Path\Cimatron\2026.0\Program"` to override detection (see the `Program.cs` argument parser).
+If exactly one install matches, it's used silently. If multiple match, the installer prints a numbered list — each labelled `<product> <version>` so the full product and DieQuote on the same version are distinguishable — and prompts the user to pick one. If zero match, the installer prints an error (listing every searched root) and exits with code 2.
+
+It does **not** search alternate drives or other install roots. If the end-user has a non-default Cimatron location, they can pass `--root "C:\Custom\Path\Cimatron DieQuote\2026.0\Program"` to override detection (see the `Program.cs` argument parser). For an override, the `<product>` segment of the corresponding `ProgramData` path is taken from the grandparent folder of the supplied `Program\` directory, so a standard-layout override still resolves the right INI.
 
 ### Payload extraction
 
@@ -70,7 +72,7 @@ Existing files at the destination are **overwritten silently**. This matches the
 
 ### INI mutation
 
-The installer opens `C:\ProgramData\Cimatron\Cimatron\<version>\Data\ExternalCommands.ini`, parses it as a line-list, and:
+The installer opens `C:\ProgramData\Cimatron\<product>\<version>\Data\ExternalCommands.ini` (the `<product>` mirrors the chosen install variant — e.g. `Cimatron DieQuote` for a DieQuote target), parses it as a line-list, and:
 
 1. If the file doesn't exist, creates it with the canonical skeleton (matching `/register-command`'s skeleton — see that command for the exact text and rationale).
 2. Finds or creates the `[Plugin Ext Commands]` section.
